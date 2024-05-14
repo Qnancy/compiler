@@ -17,7 +17,9 @@
         {
             sprintf(buf,"%s%d ",buf,yytext[i]);
         }
-        fprintf(stderr, "ERROR: %s at symbol '%s' on line %d\n", s, buf, yylineno);
+        fprintf(stderr, "ERROR: %s at symbol '", s);
+        fwrite(yytext, len, 1, stderr);
+        fprintf(stderr, "' on line %d\n", yylineno);
     }
 %}
 
@@ -260,12 +262,12 @@ IfStmt
 	;
 
 ForStmt
-    : FOR LPAREN Stmt_ SEMI Exp SEMI Stmt_ RPAREN Block		{  $$ = new ForStmt((Stmt*)$3, (Expr*)$5, (Stmt*)$7, (Stmt*)$9);   }
-    | FOR LPAREN VarDecl Exp SEMI Stmt_ RPAREN Block	    {  $$ = new ForStmt((Stmt*)$3, (Expr*)$4, (Stmt*)$6, (Stmt*)$8);   }
+    : FOR LPAREN Stmt_ SEMI Exp SEMI Stmt_ RPAREN Stmt		{  $$ = new ForStmt((Stmt*)$3, (Expr*)$5, (Stmt*)$7, (Stmt*)$9);   }
+    | FOR LPAREN VarDecl Exp SEMI Stmt_ RPAREN Stmt	        {  $$ = new ForStmt((Stmt*)$3, (Expr*)$4, (Stmt*)$6, (Stmt*)$8);   }
 	;
 
 WhileStmt
-    : WHILE LPAREN Exp RPAREN Block						{  $$ = new WhileStmt((Expr*)$3, (Stmt*)$5);   }
+    : WHILE LPAREN Exp RPAREN Stmt						    {  $$ = new WhileStmt((Expr*)$3, (Stmt*)$5);   }
 	;
 
 BreakStmt

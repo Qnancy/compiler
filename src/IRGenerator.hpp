@@ -47,15 +47,20 @@
 
 #include "AST.hpp"
 
+// 全局上下文，用于创建 LLVM 模块和相关的对象。
+extern llvm::LLVMContext Context;
+
+// 一个辅助对象，用于简化生成 LLVM 指令的过程。
+// 它会跟踪当前插入指令的位置，并提供方法来创建新的指令。
+extern llvm::IRBuilder<> IRBuilder;
+
 class IRVarAttr {
 public: 
     VarType type_; 
     std::string name_; 
-    bool isPtr_; 
-
-	//llvm::Function* CurFunc;
     llvm::Value* value_;
-
+    bool isPtr_; 
+    
     IRVarAttr(VarType type, std::string name, llvm::Value* value, bool _isPtr_=false):
         type_(type), name_(name), value_(value), isPtr_(_isPtr_){}
 };
@@ -88,50 +93,27 @@ public:
 };
 
 class IRGenerator {
-public: 
-    llvm::LLVMContext* Context;
-    llvm::IRBuilder<>* IRBuilder;
+public:
     llvm::Module* Module;
-
-    llvm::Function* curFunc_;
-    Block* curBasicBlock_;
-    bool bbCreatePreBrSignal_;
-    VarType* curVarType_; 
-    std::vector<IRVarAttr*> varList_;
-    std::vector<IRFuncAttr*> funcList_;
-    std::vector<IRLoopAttr*> loopLevel_; 
-    std::vector<IRVarAttr*> varListForFuture_;
-
-    IRGenerator(){
-        Context = new llvm::LLVMContext; 
-        IRBuilder = new llvm::IRBuilder<>(*Context);
-        Module = new llvm::Module("main", *Context);
-
-        bbCreatePreBrSignal_ = true; 
-        curBasicBlock_ = NULL; 
-        curFunc_ = NULL;
-        curVarType_ = NULL; 
-    }
-    // ~IRGenerator(){
-    //     delete Context;
-    //     delete IRBuilder;
-    //     delete Module;
-    // }
+public: 
+    //Constructor
+    IRGenerator(void);
 
     void GenerateCode(BaseAST*);
     void GenObjectCode(std::string);
-    void DumpIRCode(std::string FileName);
+    void DumpIRCode(std::string name);
 
-    void CreateVar(VarType type, std::string name, llvm::Value* value, bool isPtr=false);
-    void DiscardVar(); 
-	llvm::Value* FindVar(std::string name);
-    bool IsPtrVar(std::string name);
+    // Var
+    void CreateVar(VarType type, const std::string& name, llvm::Value* value, bool isPtr=false);
+    void ClearVar(); 
+	llvm::Value* FindVar(const std::string&);
+    bool IsPtrVar(const std::string&);
+    void RemainFutureVar(VarType type, const std::string& name, llvm::Value* value, bool isPtr=false); 
+    void CreateFutureVars(); 
+
 
     void SetCurVarType(VarType* curVarType);
     VarType* GetCurVarType();
-
-    void RemainFutureVar(VarType type, std::string name, llvm::Value* value, bool isPtr=false); 
-    void CreateFutureVars(); 
 
     void SetCurFunc(llvm::Function* curFunc);
     llvm::Function* GetCurFunc();
@@ -154,8 +136,14 @@ public:
     bool IsFuncDefined(std::string Name);
     bool SetFuncDefined(std::string Name); 
     // llvm::Function* CallFunction(std::string Name);
+
+private:
+    llvm::Function* curFunc_;
+    Block* curBasicBlock_;
+    bool bbCreatePreBrSignal_;
+    VarType* curVarType_; 
+    std::vector<IRVarAttr*> varList_;
+    std::vector<IRFuncAttr*> funcList_;
+    std::vector<IRLoopAttr*> loopLevel_; 
+    std::vector<IRVarAttr*> varListForFuture_;
 };
-
-
-llvm::Value* TypeCasting(llvm::Value* Value, llvm::Type* Type, IRGenerator& IRContext);
-llvm::Value* TypeUpgrading(llvm::Value* Value, llvm::Type* Type, IRGenerator& IRContext);

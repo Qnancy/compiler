@@ -531,10 +531,12 @@ public:
 	int int_;
 	char character_;
 	double double_;
+	bool bool_;
 	
 	Constant(int _int_) : type_("int"), int_(_int_) {}
 	Constant(char _character_) : type_("char"), character_(_character_) {}
 	Constant(double _double_) : type_("double"), double_(_double_) {}
+	Constant(bool _bool_) : type_("bool"), bool_(_bool_) {}
 	~Constant() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);

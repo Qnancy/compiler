@@ -1,11 +1,8 @@
 int factorial(int n) {
-    if (n == 0)
+    if (n == 1) {
         return 1;
-    return n * factorial(n - 1);
-}
-int main() {
-    int n = getint();
-    int result = factorial(n);
-    putint(result);
-    return 0;
+    } else {
+        int ans = n * factorial(n - 1);
+        return ans;
+    }
 }
