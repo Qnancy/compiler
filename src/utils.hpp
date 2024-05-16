@@ -76,7 +76,7 @@ llvm::Value* CastType(llvm::Value* value, llvm::Type* type){
 	}
 }
 
-llvm::Value* TypeCasting(llvm::Value* Value, llvm::Type* Type, IRGenerator& IRContext) {
+llvm::Value* TypeCasting(llvm::Value* Value, llvm::Type* Type) {
 	if (Value->getType() == Type) {
 		return Value;
 	}
@@ -116,7 +116,7 @@ llvm::Value* TypeCasting(llvm::Value* Value, llvm::Type* Type, IRGenerator& IRCo
 	}
 }
 
-llvm::Value* TypeUpgrading(llvm::Value* Value, llvm::Type* Type, IRGenerator& IRContext) {
+llvm::Value* TypeUpgrading(llvm::Value* Value, llvm::Type* Type) {
 	if (Value->getType()->isIntegerTy() && Type->isIntegerTy()) {
 		int Bit1 = ((llvm::IntegerType*)Value->getType())->getBitWidth();
 		int Bit2 = ((llvm::IntegerType*)Type)->getBitWidth();
@@ -134,4 +134,17 @@ llvm::Value* TypeUpgrading(llvm::Value* Value, llvm::Type* Type, IRGenerator& IR
 		return Value;
 	}
 	else return NULL;
+}
+
+llvm::AllocaInst* CreateEntryBlockAlloca(llvm::Function* Func, std::string VarName, llvm::Type* VarType) {
+	llvm::IRBuilder<> TmpB(&Func->getEntryBlock(), Func->getEntryBlock().begin());
+	return TmpB.CreateAlloca(VarType, 0, VarName);
+}
+
+llvm::BranchInst* TerminateBlockByBr(llvm::BasicBlock* BB) {
+	//If not terminated, jump to the target block
+	if (!IRBuilder.GetInsertBlock()->getTerminator())
+		return IRBuilder.CreateBr(BB);
+	else
+		return NULL;
 }

@@ -9,7 +9,7 @@ extern BaseAST* Root;
 extern int yydebug;
 int main() {
     yydebug = 1;
-    std::string inputfile = "/home/compiler/io/test1.c"; 
+    std::string inputfile = "/home/compiler/tests/QuickSort/quicksort.c"; 
 
     std::string fileName = inputfile.substr(inputfile.rfind("/") + 1, inputfile.rfind(".") - (inputfile.rfind("/") + 1));
     std::string fileNamePath = inputfile.substr(0, inputfile.rfind("."));
@@ -20,9 +20,9 @@ int main() {
     //Generating code
     IRGenerator Generator;
     Generator.GenerateCode(Root);
-
-    Generator.GenObjectCode("io/"+ fileName +".o");
-    Generator.DumpIRCode("io/"+fileName+".ir");
+    
+    Generator.GenObjectCode("/home/compiler/io/"+ fileName +".o");
+    Generator.DumpIRCode("/home/compiler/io/"+fileName+".ir");
 
     std::cout << "Compile Success!" << std::endl;
 

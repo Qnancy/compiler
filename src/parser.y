@@ -36,9 +36,10 @@
 	Exprs *exprs;
     Arg *argVal;
     ArgList *argList;
-    ExprList *exprList;
     Expr *expVal;
     PointerType *ptrType;
+    VarDef *varDef;
+    VarList *varList;
 }
 
 /* 终结符 */
@@ -76,17 +77,15 @@
 %type <argVal> Arg
 %type <ptrType> PtrType
 
-%type <exprList> ExpList
-%type <exprList> _ExpList
+%type <exprs> ExpList
+%type <exprs> _ExpList
 
 %type <astVal> Decl
 %type <astVal> ConstExp
 %type <astVal> VarDecl
 %type <strVal> Btype
-%type VarList
-%type <astVal> VarDef
-
-
+%type <varList> VarList
+%type <varDef> VarDef
 %type <exprs> ArrDef ArrVal
 %type <astVal> InitVal
 
@@ -148,14 +147,15 @@ Btype
 
 /* VarDecl       ::= BType VarDef {"," VarDef} ";"; */
 VarDecl
-    : Btype VarDef VarList SEMI                             { $$ = new VarDecl(*$1, (VarDef*)$2);}
-	| Btype IDENTIFIER ArrDef SEMI					        { $$ = new ArrDef(*$1, *$2, (Exprs*)$3); }
+    : Btype VarList SEMI                                    { $$ = new VarDecl(*$1, (VarList*)$2);}
+    | Btype IDENTIFIER ArrDef SEMI                          { $$ = new ArrDef(*$1, *$2, (Exprs*)$3);}
     ;
 
 VarList
-    : VarList COMMA VarDef
-    |                                                       { ; }
+    : VarDef                                                { $$ = new VarList(); $$->push_back($1); }
+    | VarList COMMA VarDef                                  { $$ = $1; $$->push_back($3); }
     ;
+
 
 /* VarDef        ::= IDENT | IDENT "=" InitVal; | IDENT {"[" INT_CONST "]"}*/
 VarDef
@@ -262,8 +262,8 @@ IfStmt
 	;
 
 ForStmt
-    : FOR LPAREN Stmt_ SEMI Exp SEMI Stmt_ RPAREN Stmt		{  $$ = new ForStmt((Stmt*)$3, (Expr*)$5, (Stmt*)$7, (Stmt*)$9);   }
-    | FOR LPAREN VarDecl Exp SEMI Stmt_ RPAREN Stmt	        {  $$ = new ForStmt((Stmt*)$3, (Expr*)$4, (Stmt*)$6, (Stmt*)$8);   }
+    : FOR LPAREN Stmt Exp SEMI Stmt_ RPAREN Stmt		    {  $$ = new ForStmt((Stmt*)$3, (Expr*)$4, (Stmt*)$6, (Stmt*)$8);   }
+    | FOR LPAREN VarDecl Exp SEMI Stmt RPAREN Stmt	        {  $$ = new ForStmt((Stmt*)$3, (Expr*)$4, (Stmt*)$6, (Stmt*)$8);   }
 	;
 
 WhileStmt
@@ -287,11 +287,11 @@ ReturnStmt
 /* LVal          ::= IDENT {"[" Exp "]"}; */
 LVal
     : IDENTIFIER								            { $$ = new LeftVal(*$1); }
-    | IDENTIFIER ArrVal							            { $$ = new ArrVal(*$1, (Exprs*)$2); }
+    | IDENTIFIER ArrVal                                     { $$ = new ArrVal(*$1, (Exprs*)$2); }
     ;
 
 ArrVal
-	: ArrVal LBRACKET Exp RBRACKET		                    { $$ = (Exprs*)$1; $$->push_back((Expr*)$3); }
+    : ArrVal LBRACKET Exp RBRACKET		                    { $$ = (Exprs*)$1; $$->push_back((Expr*)$3); }
 	|									                    { $$ = new Exprs(); }
 	;
 
@@ -322,7 +322,7 @@ Exp
     | Exp BOR  Exp                                          { $$ = new BitwiseOR((Expr*)$1, (Expr*)$3);}
     | Exp BXOR Exp                                          { $$ = new BitwiseXOR((Expr*)$1, (Expr*)$3);}
 
-    | IDENTIFIER LPAREN ExpList RPAREN	                    { $$ = new FuncCall(*$1, (ExprList*)$3);   }
+    | IDENTIFIER LPAREN ExpList RPAREN	                    { $$ = new FuncCall(*$1, (Exprs*)$3);   }
 	;
 
 /* PrimaryExp    ::= "(" Exp ")" | LVal | Number; */
@@ -342,13 +342,13 @@ Constant
 
 ExpList
     : _ExpList COMMA Exp							        { $$ = $1; $$->push_back((Expr*)$3);   }
-	| Exp                           					    { $$ = new ExprList(); $$->push_back((Expr*)$1);   }
-	|													    { $$ = new ExprList();   }
+	| Exp                           					    { $$ = new Exprs(); $$->push_back((Expr*)$1);   }
+	|													    { $$ = new Exprs();   }
 	;
 
 _ExpList
     : _ExpList COMMA Exp 								    { $$ = $1; $$->push_back((Expr*)$3);   }
-	| Exp                       						    { $$ = new ExprList(); $$->push_back((Expr*)$1);   }
+	| Exp                       						    { $$ = new Exprs(); $$->push_back((Expr*)$1);   }
 	;
 
 %%

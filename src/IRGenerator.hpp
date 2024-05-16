@@ -54,17 +54,6 @@ extern llvm::LLVMContext Context;
 // 它会跟踪当前插入指令的位置，并提供方法来创建新的指令。
 extern llvm::IRBuilder<> IRBuilder;
 
-class IRVarAttr {
-public: 
-    VarType type_; 
-    std::string name_; 
-    llvm::Value* value_;
-    bool isPtr_; 
-    
-    IRVarAttr(VarType type, std::string name, llvm::Value* value, bool _isPtr_=false):
-        type_(type), name_(name), value_(value), isPtr_(_isPtr_){}
-};
-
 class IRLoopAttr {
 public: 
     llvm::BasicBlock* condBlock_;
@@ -75,75 +64,71 @@ public:
         condBlock_(_condBlock_), iterBlock_(_iterBlock_), exitBlock_(_exitBlock_){}
 };
 
-class IRFuncAttr {
-public: 
-    llvm::FunctionType* type_; 
-    std::string name_; 
+//Symbol table
+class SymbolEntry {
+public:
+    SymbolEntry(llvm::Function* Func, bool isDefined) : Content(Func), Type(FUNCTION), isFunctionDefined(isDefined){}
+    SymbolEntry(llvm::Type* Ty) : Content(Ty), Type(TYPE) {}
+    SymbolEntry(llvm::Value* Value, bool isPtr) : Content(Value), Type(isPtr ? PTR : VARIABLE) {}
+    llvm::Function* GetFunction(void) { return this->Type == FUNCTION ? (llvm::Function*)Content : NULL; }
+    void SetFunctionDefined() { this->isFunctionDefined = true;}
+    bool GetFunctionDefined() { return this->isFunctionDefined;}
+    llvm::Type* GetType(void) { return this->Type == TYPE ? (llvm::Type*)Content : NULL; }
+    llvm::Value* GetVariable(void) { return this->Type == VARIABLE ? (llvm::Value*)Content : NULL; }
+    llvm::Value* GetPTR(void) { return this->Type == PTR ? (llvm::Value*)Content : NULL; }
+private:
+    void* Content;
+    enum {
+        FUNCTION,
+        TYPE,
+        VARIABLE,
+        PTR,
+    } Type;
 
-	llvm::Function* func_;
-    bool isDefined_; 
-
-    IRFuncAttr(llvm::FunctionType* type, std::string name, llvm::Function* func, bool isDefined = false):
-        type_(type), name_(name), func_(func), isDefined_(isDefined){}
-
-    std::string getName() {return this->name_;}
-    llvm::Function* getFunc() {return this->func_;}
-    void setDefined() {this->isDefined_ = true;}
-    bool getDefined() {return this->isDefined_; }
+    bool isFunctionDefined = false;
 };
+using SymbolTable = std::map<std::string, SymbolEntry>;
 
 class IRGenerator {
 public:
     llvm::Module* Module;
+    llvm::Function* curFunc_;
+    std::vector<SymbolTable*> symbolTableStack_;	
+    VarType* curVarType_; 
+    std::vector<IRLoopAttr*> loopLevel_; 
+
 public: 
     //Constructor
     IRGenerator(void);
-
+    
     void GenerateCode(BaseAST*);
     void GenObjectCode(std::string);
     void DumpIRCode(std::string name);
 
+    //Function
+    void CreateFunc(llvm::FunctionType*, std::string name, llvm::Function* func, bool isDefined);
+    bool CheckFuncDefined(std::string name);
+    llvm::Function* FindFunction(std::string name);
+    void EnterFunc(llvm::Function* curFunc);
+    void LeaveFunc();
+    llvm::Function* GetCurFunc();
+
+    void PushSymbolTable(void);
+    void PopSymbolTable(void);
+
     // Var
-    void CreateVar(VarType type, const std::string& name, llvm::Value* value, bool isPtr=false);
-    void ClearVar(); 
+    bool CreateVar(std::string name, llvm::Value* value, bool isPtr=false);
 	llvm::Value* FindVar(const std::string&);
     bool IsPtrVar(const std::string&);
-    void RemainFutureVar(VarType type, const std::string& name, llvm::Value* value, bool isPtr=false); 
-    void CreateFutureVars(); 
-
 
     void SetCurVarType(VarType* curVarType);
     VarType* GetCurVarType();
 
-    void SetCurFunc(llvm::Function* curFunc);
-    llvm::Function* GetCurFunc();
-
-    void SetPreBrSignal();
-    bool ClearPreBrSignal();
-    bool GetPreBrSignal();
-
-    Block* GetBasicBlock();
-    void SetBasicBlock(Block*);
-
+    // Loop
     void EnterLoop(llvm::BasicBlock* condBlock, llvm::BasicBlock* iterBlock, llvm::BasicBlock* exitBlock); 
-    void LeaveCurrentLoop(); 
+    void LeaveLoop(); 
     llvm::BasicBlock* BreakCurrentLoop(); 
     llvm::BasicBlock* ContinueCurrentLoop();
-
-    void CreateFunc(llvm::FunctionType*, std::string name, llvm::Function* func, bool isDefined);
-    void DiscardFunc(int cnt);
-    llvm::Function* FindFunction(std::string Name);
-    bool IsFuncDefined(std::string Name);
-    bool SetFuncDefined(std::string Name); 
-    // llvm::Function* CallFunction(std::string Name);
-
-private:
-    llvm::Function* curFunc_;
-    Block* curBasicBlock_;
-    bool bbCreatePreBrSignal_;
-    VarType* curVarType_; 
-    std::vector<IRVarAttr*> varList_;
-    std::vector<IRFuncAttr*> funcList_;
-    std::vector<IRLoopAttr*> loopLevel_; 
-    std::vector<IRVarAttr*> varListForFuture_;
+    
+    bool SetFuncDefined(std::string name); 
 };

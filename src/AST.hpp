@@ -21,17 +21,20 @@ using Decls = std::vector<Decl*>;
 		class Arg;
 		class ArgList;
 	class VarDecl;
+		class VarDef;
+		class ArrDef;
+		using VarList = std::vector<VarDef*>;
+
 class FuncDef;
 
 /*** Variable Types ***/
 class VarType;
-class VarDef;
 class PointerType;
 
 class Block;
 /*** Statements ***/
 class Stmt;
-using Stmts = std::vector<Stmt*>;
+	using Stmts = std::vector<Stmt*>;
 	class IfStmt;
 	class ForStmt;
 	class WhileStmt;
@@ -42,7 +45,6 @@ using Stmts = std::vector<Stmt*>;
 
 /*** Expressions ***/
 class Expr;
-	using ExprList = std::vector<Expr*>;
 	using Exprs = std::vector<Expr*>;
 	class FuncCall;
 	class UnaryPlus;
@@ -65,7 +67,7 @@ class Expr;
 	class Assign;
 	class Constant;
 		class StringType;
-	class AssignArr;
+	class ArrAssign;
 
 class LeftVal;
 class ArrVal;
@@ -134,10 +136,10 @@ public:
 	std::string funcName_; 
 	VarType type_; 
 	ArgList* argList_;
-	Block* block_;
+	Block* funcBody_;
 
-	FuncDef(std::string _typeName_, std::string _funcName_, ArgList* _argList_, Block* _block_ = NULL):
-		type_(_typeName_), funcName_(_funcName_), argList_(_argList_),  block_(_block_) {}
+	FuncDef(std::string _typeName_, std::string _funcName_, ArgList* _argList_, Block* funcBody_ = NULL):
+		type_(_typeName_), funcName_(_funcName_), argList_(_argList_),  funcBody_(funcBody_) {}
 	~FuncDef(){};
 	
 	llvm::Value* IRGen(IRGenerator& IRContext);
@@ -154,11 +156,11 @@ public:
 
 class VarDecl : public Decl {
 public:
-	VarDef* varDef_;
 	VarType type_; 
+	VarList* varList_;
 
-	VarDecl(std::string _typeName_, VarDef* _varDef_) : 
-		varDef_(_varDef_), type_(_typeName_) {}
+	VarDecl(std::string _type_, VarList* _varList_) : 
+		varList_(_varList_), type_(_type_) {}
 	~VarDecl() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
@@ -178,14 +180,11 @@ public:
 
 class ArrDef : public BaseAST {
 public:
-	llvm::Type* elementType_;
-	llvm::Type* arrayType_;
 	std::string arrName_;
 	VarType type_;
 	Exprs* exprs_;
 
-	ArrDef(std::string _typeName_, std::string _arrName_, Exprs* _exprs_) :
-	type_(_typeName_), arrName_(_arrName_), exprs_(_exprs_) {}
+	ArrDef(VarType _type_, std::string _arrName_, Exprs* _exprs_) : type_(_type_),arrName_(_arrName_), exprs_(_exprs_) {}
 	~ArrDef() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
@@ -514,12 +513,25 @@ public:
 	llvm::Value* IRGen(IRGenerator& IRContext);
 };
 
+
 class LeftVal : public Expr {
 public:
 	std::string name_;
 
 	LeftVal(std::string& _name_) : name_(_name_) {}
 	~LeftVal() {}
+
+	llvm::Value* IRGen(IRGenerator& IRContext);
+	llvm::Value* IRGenPtr(IRGenerator& IRContext);
+};
+
+class ArrVal : public LeftVal {
+public:
+	std::string name_;
+	Exprs* exprs_;
+
+	ArrVal(std::string _name_, Exprs* _exprs_) : LeftVal(_name_), name_(_name_), exprs_(_exprs_) {}
+	~ArrVal() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
 	llvm::Value* IRGenPtr(IRGenerator& IRContext);
@@ -580,33 +592,23 @@ public:
 class FuncCall : public Expr {
 public:
 	std::string funcName_;
-	ExprList* argList_;
+	Exprs* argList_;
 
-	FuncCall(const std::string& _funcName_, ExprList* _argList_) : funcName_(_funcName_), argList_(_argList_) {}
+	FuncCall(const std::string& _funcName_, Exprs* _argList_) : funcName_(_funcName_), argList_(_argList_) {}
 	~FuncCall(void) {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
 };
 
-class ArrVal : public Expr {
-public:
-	std::string name_;
-	Exprs* exprs_;
 
-	ArrVal(std::string _name_, Exprs* _exprs_) : name_(_name_), exprs_(_exprs_) {}
-	~ArrVal() {}
 
-	llvm::Value* IRGen(IRGenerator& IRContext);
-	llvm::Value* IRGenPtr(IRGenerator& IRContext);
-};
-
-class AssignArr : public Stmt {
+class ArrAssign : public Stmt {
 public:
 	ArrVal* LHS_;
 	Expr* RHS_;
 
-	AssignArr(ArrVal* _LHS_, Expr* _RHS_) : LHS_(_LHS_), RHS_(_RHS_) {}
-	~AssignArr() {}
+	ArrAssign(ArrVal* _LHS_, Expr* _RHS_) : LHS_(_LHS_), RHS_(_RHS_) {}
+	~ArrAssign() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
 };
