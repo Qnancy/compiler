@@ -205,9 +205,9 @@ llvm::Value* ArrDef::IRGen(IRGenerator& IRContext) {
 	}
 	
 	if(IRContext.GetCurFunc()){
-		auto AllocMem = IRBuilder.CreateAlloca(arrayType, 0, this->arrName_);
+		auto Alloc = CreateEntryBlockAlloca(IRContext.GetCurFunc(), this->arrName_, arrayType);
 		arrayType->print(llvm::outs());
-		if (!IRContext.CreateVar(this->arrName_, AllocMem, true))
+		if (!IRContext.CreateVar(this->arrName_, Alloc, true))
 			throw std::logic_error("Variable redefined: " + this->arrName_); 
 		
 	}else{
@@ -296,13 +296,12 @@ llvm::Value* IfStmt::IRGen(IRGenerator& IRContext) {
 		return NULL;
 	}
 	llvm::Function* CurFunc = IRContext.GetCurFunc();
-	llvm::BasicBlock* ThenBlock = llvm::BasicBlock::Create(Context, "Then");
-	llvm::BasicBlock* ElseBlock = llvm::BasicBlock::Create(Context, "Else");
-	llvm::BasicBlock* MergeBlock = llvm::BasicBlock::Create(Context, "Merge");
+	llvm::BasicBlock* ThenBlock = llvm::BasicBlock::Create(Context, "Then", CurFunc);
+	llvm::BasicBlock* ElseBlock = llvm::BasicBlock::Create(Context, "Else", CurFunc);
+	llvm::BasicBlock* MergeBlock = llvm::BasicBlock::Create(Context, "Merge", CurFunc);
 	//Create a branch instruction corresponding to this if statement
 	IRBuilder.CreateCondBr(condition, ThenBlock, ElseBlock);
 	//Generate code in the "Then" block
-	CurFunc->getBasicBlockList().push_back(ThenBlock);
 	IRBuilder.SetInsertPoint(ThenBlock);
 	if (this->thenStmt_) {
 		IRContext.PushSymbolTable();
@@ -311,7 +310,6 @@ llvm::Value* IfStmt::IRGen(IRGenerator& IRContext) {
 	}
 	TerminateBlockByBr(MergeBlock);
 	//Generate code in the "Else" block
-	CurFunc->getBasicBlockList().push_back(ElseBlock);
 	IRBuilder.SetInsertPoint(ElseBlock);
 	if (this->elseStmt_) {
 		IRContext.PushSymbolTable();
@@ -321,7 +319,6 @@ llvm::Value* IfStmt::IRGen(IRGenerator& IRContext) {
 	TerminateBlockByBr(MergeBlock);
 	//Finish "Merge" block
 	if (MergeBlock->hasNPredecessorsOrMore(1)) {
-		CurFunc->getBasicBlockList().push_back(MergeBlock);
 		IRBuilder.SetInsertPoint(MergeBlock);
 	}
 	return NULL;
@@ -333,7 +330,7 @@ llvm::Value* ForStmt::IRGen(IRGenerator& IRContext) {
 
 	llvm::BasicBlock* ForCondBlock = llvm::BasicBlock::Create(Context, "ForCond", CurFunc);
 	llvm::BasicBlock* ForBodyBlock = llvm::BasicBlock::Create(Context, "ForBody", CurFunc);
-	llvm::BasicBlock* ForIncBlock = llvm::BasicBlock::Create(Context, "ForInc", CurFunc);
+	llvm::BasicBlock* ForIterBlock = llvm::BasicBlock::Create(Context, "ForIter", CurFunc);
 	llvm::BasicBlock* ForExitBlock = llvm::BasicBlock::Create(Context, "ForExit", CurFunc);
 	
 	if (this->initStmt_) {
@@ -342,7 +339,6 @@ llvm::Value* ForStmt::IRGen(IRGenerator& IRContext) {
 	}
 	TerminateBlockByBr(ForCondBlock);
 	//Generate code in the "ForCond" block
-	CurFunc->getBasicBlockList().push_back(ForCondBlock);
 	IRBuilder.SetInsertPoint(ForCondBlock);
 	if (this->condExpr_) {
 		auto condition = this->condExpr_->IRGen(IRContext);
@@ -355,25 +351,22 @@ llvm::Value* ForStmt::IRGen(IRGenerator& IRContext) {
 		IRBuilder.CreateBr(ForBodyBlock);
 	}
 	//Generate code in the "ForBody" block
-	CurFunc->getBasicBlockList().push_back(ForBodyBlock);
 	IRBuilder.SetInsertPoint(ForBodyBlock);
 	if (this->loopBody_) {
-		IRContext.EnterLoop(ForCondBlock, ForIncBlock, ForExitBlock);
+		IRContext.EnterLoop(ForCondBlock, ForIterBlock, ForExitBlock);
 		IRContext.PushSymbolTable();
 		this->loopBody_->IRGen(IRContext);
 		IRContext.PopSymbolTable();
 		IRContext.LeaveLoop();
 	}
-	TerminateBlockByBr(ForIncBlock);
+	TerminateBlockByBr(ForIterBlock);
 	//Generate code in the "ForInc" block
-	CurFunc->getBasicBlockList().push_back(ForIncBlock);
-	IRBuilder.SetInsertPoint(ForIncBlock);
+	IRBuilder.SetInsertPoint(ForIterBlock);
 	if (this->iterStmt_) {
 		this->iterStmt_->IRGen(IRContext);
 	}
 	IRBuilder.CreateBr(ForCondBlock);
 	//Finish "ForExit" block
-	CurFunc->getBasicBlockList().push_back(ForExitBlock);
 	IRBuilder.SetInsertPoint(ForExitBlock);
 	if (this->initStmt_){
 		IRContext.PopSymbolTable();
@@ -390,7 +383,6 @@ llvm::Value* WhileStmt::IRGen(IRGenerator& IRContext) {
 	llvm::BasicBlock* WhileBodyBlock = llvm::BasicBlock::Create(Context, "WhileBody", CurFunc);
 	llvm::BasicBlock* WhileExitBlock = llvm::BasicBlock::Create(Context, "WhileExit", CurFunc);
 	IRBuilder.CreateBr(WhileCondBlock);
-	CurFunc->getBasicBlockList().push_back(WhileCondBlock);
 	IRBuilder.SetInsertPoint(WhileCondBlock);
 	auto condition = this->condExpr_->IRGen(IRContext);
 	if (!(condition = ToBoolType(condition))) {
@@ -399,7 +391,6 @@ llvm::Value* WhileStmt::IRGen(IRGenerator& IRContext) {
 	}
 	IRBuilder.CreateCondBr(condition, WhileBodyBlock, WhileExitBlock);
 	//Generate code in the "WhileBody" block
-	CurFunc->getBasicBlockList().push_back(WhileBodyBlock);
 	IRBuilder.SetInsertPoint(WhileBodyBlock);
 	if (this->loopBody_) {
 		IRContext.EnterLoop(WhileCondBlock, WhileBodyBlock, WhileExitBlock);
@@ -410,11 +401,7 @@ llvm::Value* WhileStmt::IRGen(IRGenerator& IRContext) {
 	}
 	TerminateBlockByBr(WhileCondBlock);
 	//Finish "WhileExit" block
-	if (WhileExitBlock->hasNPredecessorsOrMore(1)) {
-		CurFunc->getBasicBlockList().push_back(WhileExitBlock);
-		IRBuilder.SetInsertPoint(WhileExitBlock);
-	}
-	
+	IRBuilder.SetInsertPoint(WhileExitBlock);
 	return NULL;
 }
 
