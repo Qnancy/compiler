@@ -652,7 +652,8 @@ llvm::Value* Assign::IRGen(IRGenerator& IRContext){
 	llvm::Value* RHS = this->RHS_->IRGen(IRContext);
 	if (dynamic_cast<ArrVal*>(this->LHS_) != nullptr) {
 		std::cout << "ArrAssign" << std::endl;
-		llvm::Value* LHSPtr = this->LHS_->IRGenPtr(IRContext);
+		ArrVal* arrValPtr = dynamic_cast<ArrVal*>(this->LHS_);
+		llvm::Value* LHSPtr = arrValPtr->IRGenPtr(IRContext);
 		IRBuilder.CreateStore(RHS, LHSPtr);
 		return RHS; 
 	}else{
