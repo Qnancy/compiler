@@ -26,7 +26,9 @@ execute_process(WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/src
 ###############################################
 
 # Set project compile flags.
-set(CMAKE_CXX_STANDARD 14)
+set (CMAKE_CXX_STANDARD 17)
+
+find_package(fmt REQUIRED)
 
 find_package(LLVM REQUIRED CONFIG)
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
@@ -56,8 +58,10 @@ add_executable(${OUTPUT_FILE} ${SOURCES})
 # Link
 ###############################################
 
+target_link_libraries(${OUTPUT_FILE} PRIVATE fmt::fmt)
+
 if(WIN32)
-    target_link_libraries(${OUTPUT_FILE} ${LLVM_AVAILABLE_LIBS})
+    target_link_libraries(${OUTPUT_FILE} PRIVATE ${LLVM_AVAILABLE_LIBS})
 else()
     # llvm_map_components_to_libnames(llvm_libs support core irreader)
     execute_process(COMMAND llvm-config-14 --libs all

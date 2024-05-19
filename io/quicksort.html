@@ -1,0 +1,129 @@
+
+		<!DOCTYPE html>
+		<html>
+
+		<head>
+			<script src="https://d3js.org/d3.v5.min.js"></script>
+		</head>
+
+		<body>
+			<script>
+				var treeData = { "name" : "Program", "children" : [ { "name" : "FuncDefinition", "children" : [ { "name" : "Return Type", "children" : [ { "name" : "VarType", "children" : [ { "name" : "Int" } ] } ] }, { "name" : "Function Name", "children" : [ { "name" : "scank" } ] }, { "name" : "ArgList", "children" : [ { "name" : "Arg", "children" : [ { "name" : "VarType", "children" : [ { "name" : "Ptr" } ] } ] }, { "name" : "...", "children" : [  ] } ] } ] }, { "name" : "FuncDefinition", "children" : [ { "name" : "Return Type", "children" : [ { "name" : "VarType", "children" : [ { "name" : "Int" } ] } ] }, { "name" : "Function Name", "children" : [ { "name" : "main" } ] }, { "name" : "ArgList", "children" : [  ] }, { "name" : "Block", "children" : [ { "name" : "VarDeclaration", "children" : [ { "name" : "VarType", "children" : [ { "name" : "Int" } ] }, { "name" : "VarList", "children" : [ { "name" : "VarDefinition", "children" : [ { "name" : "i" } ] }, { "name" : "VarDefinition", "children" : [ { "name" : "n" }, { "name" : "Constant", "children" : [ { "name" : "10" } ] } ] } ] } ] }, { "name" : "ForStmt", "children" : [ { "name" : "DirectAssign", "children" : [ { "name" : "LeftVal", "children" : [ { "name" : "i" } ] }, { "name" : "Constant", "children" : [ { "name" : "0" } ] } ] }, { "name" : "LogicLT", "children" : [ { "name" : "LeftVal", "children" : [ { "name" : "i" } ] }, { "name" : "LeftVal", "children" : [ { "name" : "n" } ] } ] }, { "name" : "DirectAssign", "children" : [ { "name" : "LeftVal", "children" : [ { "name" : "i" } ] }, { "name" : "Addition", "children" : [ { "name" : "LeftVal", "children" : [ { "name" : "i" } ] }, { "name" : "Constant", "children" : [ { "name" : "1" } ] } ] } ] }, { "name" : "Block", "children" : [  ] } ] } ] } ] } ] };
+
+				// Set the dimensions and margins of the diagram
+				var margin = {top: 20, right: 90, bottom: 30, left: 90},
+					width = 2000 - margin.left - margin.right,
+					height = 3500 - margin.top - margin.bottom;
+				var svg = d3.select("body").append("svg")
+					.attr("width", width + margin.right + margin.left)
+					.attr("height", height + margin.top + margin.bottom)
+					.append("g")
+					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+				var i = 0;
+				var tree = d3.tree().size([height, width]);
+				var root = d3.hierarchy(treeData);
+				root.x0 = height / 2;
+				root.y0 = 0;
+				update(root);
+				function update(source) {
+					var treeData = tree(root);
+					var nodes = treeData.descendants(),
+						links = treeData.descendants().slice(1);
+					nodes.forEach(function(d) { d.y = d.depth * 170; });
+					var node = svg.selectAll('g.node')
+						.data(nodes, function(d) { return d.id || (d.id = ++i); });
+					var nodeEnter = node.enter().append('g')
+						.attr('class', 'node')
+						.attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+						.on('click', click);
+					nodeEnter.append('circle')
+						.attr('class', 'node')
+						.attr('r', 1e-6)
+						.style('fill', '#89CFF0')
+						.style('stroke', '#1E90FF')
+						.style('stroke-width', '2px');
+
+					// Add labels for the nodes
+					nodeEnter.append('text')
+						.attr("dy", ".35em")
+						.attr("x", function(d) { return d.children || d._children ? -13 : 13; })
+						.attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+						.text(function(d) { return d.data.name; })
+						.style('font-size', '13px')
+						.style('font-family', 'Comic Sans MS');
+					var nodeUpdate = nodeEnter.merge(node);
+					nodeUpdate.transition()
+						.duration(200)
+						.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+					nodeUpdate.select('circle.node')
+						.attr('r', 9)
+						.style('fill', '#89CFF0')
+						.style('stroke', '#1E90FF')
+						.style('stroke-width', '2px')
+						.attr('cursor', 'pointer');
+					// Remove nodes
+					var nodeExit = node.exit().transition()
+						.duration(200)
+						.attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+						.remove();
+					nodeExit.select('circle')
+						.attr('r', 1e-6);
+					nodeExit.select('text')
+						.style('fill-opacity', 1e-6);
+
+					// Add links between nodes
+					var link = svg.selectAll('path.link')
+						.data(links, function(d) { return d.id; });
+					// Enter links
+					var linkEnter = link.enter().insert('path', "g")
+						.attr("class", "link")
+						.attr('d', function(d) {
+							var o = {x: source.x0, y: source.y0};
+							return diagonal(o, o);
+						})
+						.style('stroke', '#ccc')
+						.style('stroke-width', '2px')
+						.style('stroke-dasharray', '5,5')
+						.style('fill', 'none'); // Make the link path empty
+
+					var linkUpdate = linkEnter.merge(link);
+					linkUpdate.transition()
+						.duration(200)
+						.attr('d', function(d) { return diagonal(d, d.parent); })
+						.style('stroke', '#ccc')
+						.style('stroke-width', '2px')
+						.style('stroke-dasharray', '5,5')
+						.style('fill', 'none'); // Make the link path empty
+					// Remove links
+					var linkExit = link.exit().transition()
+						.duration(200)
+						.attr('d', function(d) {
+							var o = {x: source.x, y: source.y};
+							return diagonal(o, o);
+						})
+						.remove();
+					// Store old positions
+					nodes.forEach(function(d) {
+						d.x0 = d.x;
+						d.y0 = d.y;
+					});
+					function diagonal(s, d) {
+						path = `M ${s.y} ${s.x} C ${(s.y + d.y) / 2} ${s.x}, ${(s.y + d.y) / 2} ${d.x}, ${d.y} ${d.x}`;
+						return path;
+					}
+					function click(d) {
+						if (d.children) {
+							d._children = d.children;
+							d.children = null;
+						} else {
+							d.children = d._children;
+							d._children = null;
+						}
+						update(d);
+					}
+				}
+			</script>
+		</body>
+
+		</html>
+		
