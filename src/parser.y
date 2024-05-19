@@ -188,6 +188,9 @@ FuncType
     : INT                                                   { $$ = $1; }
     | VOID                                                  { $$ = $1; }
     | CHAR                                                  { $$ = $1; }
+    | SHORT                                                 { $$ = $1; }
+    | DOUBLE                                                { $$ = $1; }
+    | BOOL                                                  { $$ = $1; }
     ;
 
 /*FuncFParams   ::= FuncFParam {"," FuncFParam};*/
@@ -337,7 +340,7 @@ Constant
     : CONST_INT							                    { $$ = new Constant($1); }
     | CONST_CHAR						                    { $$ = new Constant($1); }
     | CONST_STR                                             { $$ = new StringType(*$1); }
-	| CONST_DOUBLE						                    { std::cout << $1 << std::endl;  $$ = new Constant($1); }
+	| CONST_DOUBLE						                    { $$ = new Constant($1); }
     ;
 
 ExpList

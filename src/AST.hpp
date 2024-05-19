@@ -85,7 +85,7 @@ enum TypeID{
 class VarType {
 public:
 	VarType(std::string name);
-	VarType(PointerType* baseType):baseTypePointer(baseType) {type=Ptr;}
+	VarType(PointerType* _baseType_):baseTypePointer(_baseType_) {type=Ptr;}
 	~VarType(){}
 	TypeID GetType() {return type;}
 	llvm::Type* ToLLVMType(IRGenerator&); 
@@ -201,7 +201,16 @@ public:
 
 };
 
-class Block : public BaseAST {
+class Stmt: public BaseAST {
+public: 
+	Stmt() {}
+	~Stmt() {}
+
+	virtual llvm::Value* IRGen(IRGenerator& IRContext) = 0;
+	virtual std::string getJson();
+};
+
+class Block : public Stmt {
 public:
 	Stmts* stmts_;
 	int varCnt_;
@@ -211,15 +220,6 @@ public:
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
 	std::string getJson();
-};
-
-class Stmt: public BaseAST {
-public: 
-	Stmt() {}
-	~Stmt() {}
-
-	virtual llvm::Value* IRGen(IRGenerator& IRContext) = 0;
-	virtual std::string getJson() = 0;
 };
 
 class IfStmt : public Stmt {
