@@ -207,7 +207,7 @@ public:
 	~Stmt() {}
 
 	virtual llvm::Value* IRGen(IRGenerator& IRContext) = 0;
-	virtual std::string getJson();
+	virtual std::string getJson() = 0;
 };
 
 class Block : public Stmt {
