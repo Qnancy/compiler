@@ -7,5 +7,13 @@ sudo apt-get install cmake
 sudo apt-get install gcc
 ```
 ## 运行代码
+在 `compiler`目录下，
 输入`bash ./scripts/cmake_src.sh`
-编译出 可执行文件zjuc之后，点Vscode左侧的Cmake，点击调试就可以了
+编译出 可执行文件 compiler
+输入`.build/compiler tests/xx.c` 运行tests文件夹下的`xx.c`测试样例，生成`.o`和`.ir`
+
+## 链接库文件
+`cd lib`
+`gcc -shared -fPIC -o io.so io.c`
+`cd ..`
+`gcc -no-pie xx.o lib/io.so -o xx` 生成可执行文件

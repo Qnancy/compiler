@@ -7,9 +7,9 @@
 extern int yyparse();
 extern BaseAST* Root;
 extern int yydebug;
-int main() {
-    yydebug = 1;
-    std::string inputfile = "/home/compiler/tests/QuickSort/quicksort.c"; 
+int main(int argc, const char* argv[]) {
+    // yydebug = 1;
+    std::string inputfile = argv[1];
 
     std::string fileName = inputfile.substr(inputfile.rfind("/") + 1, inputfile.rfind(".") - (inputfile.rfind("/") + 1));
     std::string fileNamePath = inputfile.substr(0, inputfile.rfind("."));
@@ -21,8 +21,8 @@ int main() {
     IRGenerator Generator;
     Generator.GenerateCode(Root);
     
-    Generator.GenObjectCode("/home/compiler/io/"+ fileName +".o");
-    Generator.DumpIRCode("/home/compiler/io/"+fileName+".ir");
+    Generator.GenObjectCode("io/"+ fileName +".o");
+    Generator.DumpIRCode("io/"+fileName+".ir");
 
     std::cout << "Compile Success!" << std::endl;
 

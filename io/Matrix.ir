@@ -18,248 +18,247 @@ declare i32 @printk(i32*, ...)
 declare i32 @scank(i32*, ...)
 
 define i32 @main() {
-BBEntry:
+FuncEntry:
+  %temp = alloca i32, align 4
+  %temp2 = alloca i32, align 4
+  %temp125 = alloca i32, align 4
+  %sum = alloca i32, align 4
+  %temp1 = alloca i32, align 4
+  %k = alloca i32, align 4
+  %j = alloca i32, align 4
+  %i = alloca i32, align 4
+  %Res = alloca [1000 x i32], align 4
+  %Arr2 = alloca [1000 x i32], align 4
+  %Arr1 = alloca [1000 x i32], align 4
+  %b2 = alloca i32, align 4
+  %a1 = alloca i32, align 4
+  %b1 = alloca i32, align 4
   %a2 = alloca i32, align 4
   store i32 0, i32* %a2, align 4
-  %b1 = alloca i32, align 4
   store i32 0, i32* %b1, align 4
-  %a1 = alloca i32, align 4
   store i32 0, i32* %a1, align 4
-  %b2 = alloca i32, align 4
   store i32 2, i32* %b2, align 4
   %0 = load i32, i32* %b2, align 4
   store i32 %0, i32* getelementptr inbounds ([100 x i32], [100 x i32]* @d, i32 0, i32 1), align 4
-  %Arr1 = alloca [1000 x i32], align 4
-  %Arr2 = alloca [1000 x i32], align 4
-  %Res = alloca [1000 x i32], align 4
-  %i = alloca i32, align 4
   store i32 0, i32* %i, align 4
-  %j = alloca i32, align 4
   store i32 0, i32* %j, align 4
-  %k = alloca i32, align 4
   store i32 0, i32* %k, align 4
-  %temp1 = alloca i32, align 4
   store i32 0, i32* %temp1, align 4
   %1 = call i32 (i32*, ...) @scank(i32* bitcast ([6 x i8]* @0 to i32*), i32* %a1, i32* %b1)
   store i32 0, i32* %i, align 4
-  br label %ForCmp
+  br label %ForCond
 
-ForCmp:                                           ; preds = %ForExit4, %BBEntry
+ForCond:                                          ; preds = %ForExit4, %FuncEntry
   %2 = load i32, i32* %i, align 4
   %3 = load i32, i32* %a1, align 4
   %4 = icmp slt i32 %2, %3
-  br i1 %4, label %BBEntry1, label %ForExit
+  br i1 %4, label %ForBody, label %ForExit
 
-ForExit:                                          ; preds = %ForCmp
+ForBody:                                          ; preds = %ForCond
+  store i32 0, i32* %j, align 4
+  br label %ForCond1
+
+ForExit:                                          ; preds = %ForCond
   %5 = call i32 (i32*, ...) @scank(i32* bitcast ([7 x i8]* @2 to i32*), i32* %a2, i32* %b2)
   store i32 0, i32* %i, align 4
-  br label %ForCmp6
+  br label %ForCond5
 
-BBEntry1:                                         ; preds = %ForCmp
-  store i32 0, i32* %j, align 4
-  br label %ForCmp2
-
-ForCmp2:                                          ; preds = %BBEntry5, %BBEntry1
+ForCond1:                                         ; preds = %ForBody2, %ForBody
   %6 = load i32, i32* %j, align 4
   %7 = load i32, i32* %b1, align 4
   %8 = icmp slt i32 %6, %7
-  br i1 %8, label %BBEntry5, label %ForExit4
+  br i1 %8, label %ForBody2, label %ForExit4
 
-ForExit4:                                         ; preds = %ForCmp2
-  %9 = load i32, i32* %i, align 4
-  %10 = add i32 %9, 1
-  store i32 %10, i32* %i, align 4
-  br label %ForCmp
+ForBody2:                                         ; preds = %ForCond1
+  %9 = call i32 (i32*, ...) @scank(i32* bitcast ([3 x i8]* @1 to i32*), i32* %temp1)
+  %10 = load i32, i32* %temp1, align 4
+  %11 = load i32, i32* %i, align 4
+  %12 = mul i32 %11, 25
+  %13 = load i32, i32* %j, align 4
+  %14 = add i32 %12, %13
+  %15 = bitcast [1000 x i32]* %Arr1 to i32*
+  %16 = getelementptr i32, i32* %15, i32 %14
+  store i32 %10, i32* %16, align 4
+  %17 = load i32, i32* %j, align 4
+  %18 = add i32 %17, 1
+  store i32 %18, i32* %j, align 4
+  br label %ForCond1
 
-BBEntry5:                                         ; preds = %ForCmp2
-  %11 = call i32 (i32*, ...) @scank(i32* bitcast ([3 x i8]* @1 to i32*), i32* %temp1)
-  %12 = load i32, i32* %temp1, align 4
-  %13 = load i32, i32* %i, align 4
-  %14 = mul i32 %13, 25
-  %15 = load i32, i32* %j, align 4
-  %16 = add i32 %14, %15
-  %17 = bitcast [1000 x i32]* %Arr1 to i32*
-  %18 = getelementptr i32, i32* %17, i32 %16
-  store i32 %12, i32* %18, align 4
-  %19 = load i32, i32* %j, align 4
+ForExit4:                                         ; preds = %ForCond1
+  %19 = load i32, i32* %i, align 4
   %20 = add i32 %19, 1
-  store i32 %20, i32* %j, align 4
-  br label %ForCmp2
+  store i32 %20, i32* %i, align 4
+  br label %ForCond
 
-ForCmp6:                                          ; preds = %ForExit12, %ForExit
+ForCond5:                                         ; preds = %ForExit12, %ForExit
   %21 = load i32, i32* %i, align 4
   %22 = load i32, i32* %a2, align 4
   %23 = icmp slt i32 %21, %22
-  br i1 %23, label %BBEntry9, label %ForExit8
+  br i1 %23, label %ForBody6, label %ForExit8
 
-ForExit8:                                         ; preds = %ForCmp6
+ForBody6:                                         ; preds = %ForCond5
+  store i32 0, i32* %j, align 4
+  br label %ForCond9
+
+ForExit8:                                         ; preds = %ForCond5
   %24 = load i32, i32* %b1, align 4
   %25 = load i32, i32* %a2, align 4
   %26 = icmp ne i32 %24, %25
-  br i1 %26, label %BBEntry14, label %BBExit
+  br i1 %26, label %Then, label %Else
 
-BBEntry9:                                         ; preds = %ForCmp6
-  store i32 0, i32* %j, align 4
-  br label %ForCmp10
-
-ForCmp10:                                         ; preds = %BBEntry13, %BBEntry9
+ForCond9:                                         ; preds = %ForBody10, %ForBody6
   %27 = load i32, i32* %j, align 4
   %28 = load i32, i32* %b2, align 4
   %29 = icmp slt i32 %27, %28
-  br i1 %29, label %BBEntry13, label %ForExit12
+  br i1 %29, label %ForBody10, label %ForExit12
 
-ForExit12:                                        ; preds = %ForCmp10
-  %30 = load i32, i32* %i, align 4
-  %31 = add i32 %30, 1
-  store i32 %31, i32* %i, align 4
-  br label %ForCmp6
+ForBody10:                                        ; preds = %ForCond9
+  %30 = call i32 (i32*, ...) @scank(i32* bitcast ([3 x i8]* @3 to i32*), i32* %temp1)
+  %31 = load i32, i32* %temp1, align 4
+  %32 = load i32, i32* %i, align 4
+  %33 = mul i32 %32, 25
+  %34 = load i32, i32* %j, align 4
+  %35 = add i32 %33, %34
+  %36 = bitcast [1000 x i32]* %Arr2 to i32*
+  %37 = getelementptr i32, i32* %36, i32 %35
+  store i32 %31, i32* %37, align 4
+  %38 = load i32, i32* %j, align 4
+  %39 = add i32 %38, 1
+  store i32 %39, i32* %j, align 4
+  br label %ForCond9
 
-BBEntry13:                                        ; preds = %ForCmp10
-  %32 = call i32 (i32*, ...) @scank(i32* bitcast ([3 x i8]* @3 to i32*), i32* %temp1)
-  %33 = load i32, i32* %temp1, align 4
-  %34 = load i32, i32* %i, align 4
-  %35 = mul i32 %34, 25
-  %36 = load i32, i32* %j, align 4
-  %37 = add i32 %35, %36
-  %38 = bitcast [1000 x i32]* %Arr2 to i32*
-  %39 = getelementptr i32, i32* %38, i32 %37
-  store i32 %33, i32* %39, align 4
-  %40 = load i32, i32* %j, align 4
+ForExit12:                                        ; preds = %ForCond9
+  %40 = load i32, i32* %i, align 4
   %41 = add i32 %40, 1
-  store i32 %41, i32* %j, align 4
-  br label %ForCmp10
+  store i32 %41, i32* %i, align 4
+  br label %ForCond5
 
-BBEntry14:                                        ; preds = %ForExit8
+Then:                                             ; preds = %ForExit8
   %42 = call i32 (i32*, ...) @printk(i32* bitcast ([25 x i8]* @4 to i32*))
   ret i32 0
-  br label %BBExit
 
-BBExit:                                           ; preds = %ForExit8, %BBEntry14
+Else:                                             ; preds = %ForExit8
   store i32 0, i32* %i, align 4
-  br label %ForCmp15
+  br label %ForCond13
 
-ForCmp15:                                         ; preds = %ForExit21, %BBExit
+ForCond13:                                        ; preds = %ForExit20, %Else
   %43 = load i32, i32* %i, align 4
   %44 = load i32, i32* %a1, align 4
   %45 = icmp slt i32 %43, %44
-  br i1 %45, label %BBEntry18, label %ForExit17
+  br i1 %45, label %ForBody14, label %ForExit16
 
-ForExit17:                                        ; preds = %ForCmp15
-  store i32 0, i32* %i, align 4
-  br label %ForCmp28
-
-BBEntry18:                                        ; preds = %ForCmp15
+ForBody14:                                        ; preds = %ForCond13
   store i32 0, i32* %j, align 4
-  br label %ForCmp19
+  br label %ForCond17
 
-ForCmp19:                                         ; preds = %ForExit25, %BBEntry18
+ForExit16:                                        ; preds = %ForCond13
+  store i32 0, i32* %i, align 4
+  br label %ForCond26
+
+ForCond17:                                        ; preds = %ForExit24, %ForBody14
   %46 = load i32, i32* %j, align 4
   %47 = load i32, i32* %b2, align 4
   %48 = icmp slt i32 %46, %47
-  br i1 %48, label %BBEntry22, label %ForExit21
+  br i1 %48, label %ForBody18, label %ForExit20
 
-ForExit21:                                        ; preds = %ForCmp19
+ForBody18:                                        ; preds = %ForCond17
+  store i32 0, i32* %sum, align 4
+  store i32 0, i32* %k, align 4
+  br label %ForCond21
+
+ForExit20:                                        ; preds = %ForCond17
   %49 = load i32, i32* %i, align 4
   %50 = add i32 %49, 1
   store i32 %50, i32* %i, align 4
-  br label %ForCmp15
+  br label %ForCond13
 
-BBEntry22:                                        ; preds = %ForCmp19
-  %sum = alloca i32, align 4
-  store i32 0, i32* %sum, align 4
-  store i32 0, i32* %k, align 4
-  br label %ForCmp23
-
-ForCmp23:                                         ; preds = %BBEntry26, %BBEntry22
+ForCond21:                                        ; preds = %ForBody22, %ForBody18
   %51 = load i32, i32* %k, align 4
   %52 = load i32, i32* %b1, align 4
   %53 = icmp slt i32 %51, %52
-  br i1 %53, label %BBEntry26, label %ForExit25
+  br i1 %53, label %ForBody22, label %ForExit24
 
-ForExit25:                                        ; preds = %ForCmp23
-  %54 = load i32, i32* %sum, align 4
-  %55 = load i32, i32* %i, align 4
-  %56 = mul i32 %55, 25
-  %57 = load i32, i32* %j, align 4
-  %58 = add i32 %56, %57
-  %59 = bitcast [1000 x i32]* %Res to i32*
-  %60 = getelementptr i32, i32* %59, i32 %58
-  store i32 %54, i32* %60, align 4
-  %61 = load i32, i32* %j, align 4
-  %62 = add i32 %61, 1
-  store i32 %62, i32* %j, align 4
-  br label %ForCmp19
+ForBody22:                                        ; preds = %ForCond21
+  %54 = load i32, i32* %i, align 4
+  %55 = mul i32 %54, 25
+  %56 = load i32, i32* %k, align 4
+  %57 = add i32 %55, %56
+  %58 = bitcast [1000 x i32]* %Arr1 to i32*
+  %59 = getelementptr i32, i32* %58, i32 %57
+  %60 = load i32, i32* %59, align 4
+  store i32 %60, i32* %temp125, align 4
+  %61 = load i32, i32* %k, align 4
+  %62 = mul i32 %61, 25
+  %63 = load i32, i32* %j, align 4
+  %64 = add i32 %62, %63
+  %65 = bitcast [1000 x i32]* %Arr2 to i32*
+  %66 = getelementptr i32, i32* %65, i32 %64
+  %67 = load i32, i32* %66, align 4
+  store i32 %67, i32* %temp2, align 4
+  %68 = load i32, i32* %sum, align 4
+  %69 = load i32, i32* %temp125, align 4
+  %70 = load i32, i32* %temp2, align 4
+  %71 = mul i32 %69, %70
+  %72 = add i32 %68, %71
+  store i32 %72, i32* %sum, align 4
+  %73 = load i32, i32* %k, align 4
+  %74 = add i32 %73, 1
+  store i32 %74, i32* %k, align 4
+  br label %ForCond21
 
-BBEntry26:                                        ; preds = %ForCmp23
-  %temp127 = alloca i32, align 4
-  %63 = load i32, i32* %i, align 4
-  %64 = mul i32 %63, 25
-  %65 = load i32, i32* %k, align 4
-  %66 = add i32 %64, %65
-  %67 = bitcast [1000 x i32]* %Arr1 to i32*
-  %68 = getelementptr i32, i32* %67, i32 %66
-  %69 = load i32, i32* %68, align 4
-  store i32 %69, i32* %temp127, align 4
-  %temp2 = alloca i32, align 4
-  %70 = load i32, i32* %k, align 4
-  %71 = mul i32 %70, 25
-  %72 = load i32, i32* %j, align 4
-  %73 = add i32 %71, %72
-  %74 = bitcast [1000 x i32]* %Arr2 to i32*
-  %75 = getelementptr i32, i32* %74, i32 %73
-  %76 = load i32, i32* %75, align 4
-  store i32 %76, i32* %temp2, align 4
-  %77 = load i32, i32* %sum, align 4
-  %78 = load i32, i32* %temp127, align 4
-  %79 = load i32, i32* %temp2, align 4
-  %80 = mul i32 %78, %79
-  %81 = add i32 %77, %80
-  store i32 %81, i32* %sum, align 4
-  %82 = load i32, i32* %k, align 4
+ForExit24:                                        ; preds = %ForCond21
+  %75 = load i32, i32* %sum, align 4
+  %76 = load i32, i32* %i, align 4
+  %77 = mul i32 %76, 25
+  %78 = load i32, i32* %j, align 4
+  %79 = add i32 %77, %78
+  %80 = bitcast [1000 x i32]* %Res to i32*
+  %81 = getelementptr i32, i32* %80, i32 %79
+  store i32 %75, i32* %81, align 4
+  %82 = load i32, i32* %j, align 4
   %83 = add i32 %82, 1
-  store i32 %83, i32* %k, align 4
-  br label %ForCmp23
+  store i32 %83, i32* %j, align 4
+  br label %ForCond17
 
-ForCmp28:                                         ; preds = %ForExit34, %ForExit17
+ForCond26:                                        ; preds = %ForExit33, %ForExit16
   %84 = load i32, i32* %i, align 4
   %85 = load i32, i32* %a1, align 4
   %86 = icmp slt i32 %84, %85
-  br i1 %86, label %BBEntry31, label %ForExit30
+  br i1 %86, label %ForBody27, label %ForExit29
 
-ForExit30:                                        ; preds = %ForCmp28
+ForBody27:                                        ; preds = %ForCond26
+  store i32 0, i32* %j, align 4
+  br label %ForCond30
+
+ForExit29:                                        ; preds = %ForCond26
   ret i32 0
 
-BBEntry31:                                        ; preds = %ForCmp28
-  store i32 0, i32* %j, align 4
-  br label %ForCmp32
-
-ForCmp32:                                         ; preds = %BBEntry35, %BBEntry31
+ForCond30:                                        ; preds = %ForBody31, %ForBody27
   %87 = load i32, i32* %j, align 4
   %88 = load i32, i32* %b2, align 4
   %89 = icmp slt i32 %87, %88
-  br i1 %89, label %BBEntry35, label %ForExit34
+  br i1 %89, label %ForBody31, label %ForExit33
 
-ForExit34:                                        ; preds = %ForCmp32
-  %90 = call i32 (i32*, ...) @printk(i32* bitcast ([2 x i8]* @6 to i32*))
-  %91 = load i32, i32* %i, align 4
-  %92 = add i32 %91, 1
-  store i32 %92, i32* %i, align 4
-  br label %ForCmp28
+ForBody31:                                        ; preds = %ForCond30
+  %90 = load i32, i32* %i, align 4
+  %91 = mul i32 %90, 25
+  %92 = load i32, i32* %j, align 4
+  %93 = add i32 %91, %92
+  %94 = bitcast [1000 x i32]* %Res to i32*
+  %95 = getelementptr i32, i32* %94, i32 %93
+  %96 = load i32, i32* %95, align 4
+  store i32 %96, i32* %temp, align 4
+  %97 = load i32, i32* %temp, align 4
+  %98 = call i32 (i32*, ...) @printk(i32* bitcast ([5 x i8]* @5 to i32*), i32 %97)
+  %99 = load i32, i32* %j, align 4
+  %100 = add i32 %99, 1
+  store i32 %100, i32* %j, align 4
+  br label %ForCond30
 
-BBEntry35:                                        ; preds = %ForCmp32
-  %temp = alloca i32, align 4
-  %93 = load i32, i32* %i, align 4
-  %94 = mul i32 %93, 25
-  %95 = load i32, i32* %j, align 4
-  %96 = add i32 %94, %95
-  %97 = bitcast [1000 x i32]* %Res to i32*
-  %98 = getelementptr i32, i32* %97, i32 %96
-  %99 = load i32, i32* %98, align 4
-  store i32 %99, i32* %temp, align 4
-  %100 = load i32, i32* %temp, align 4
-  %101 = call i32 (i32*, ...) @printk(i32* bitcast ([5 x i8]* @5 to i32*), i32 %100)
-  %102 = load i32, i32* %j, align 4
+ForExit33:                                        ; preds = %ForCond30
+  %101 = call i32 (i32*, ...) @printk(i32* bitcast ([2 x i8]* @6 to i32*))
+  %102 = load i32, i32* %i, align 4
   %103 = add i32 %102, 1
-  store i32 %103, i32* %j, align 4
-  br label %ForCmp32
+  store i32 %103, i32* %i, align 4
+  br label %ForCond26
 }

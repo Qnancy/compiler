@@ -48,7 +48,7 @@ file(GLOB SOURCES ./src/*.hpp ./src/*.cpp)
 
 file(COPY ${SOURCES} DESTINATION ${CMAKE_BINARY_DIR})
 
-set(OUTPUT_FILE zjuc)
+set(OUTPUT_FILE compiler)
 
 add_executable(${OUTPUT_FILE} ${SOURCES})
 

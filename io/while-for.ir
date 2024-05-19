@@ -1,0 +1,139 @@
+; ModuleID = 'main'
+source_filename = "main"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-pc-linux-gnu"
+
+@0 = private unnamed_addr constant [4 x i8] c"%d \00", align 1
+
+declare i32 @printk(i32*, ...)
+
+define i32 @main(i32 %0) {
+FuncEntry:
+  %k = alloca i32, align 4
+  %j = alloca i32, align 4
+  %i = alloca i32, align 4
+  %c = alloca [4 x [3 x [2 x i32]]], align 4
+  %1 = alloca i32, align 4
+  store i32 %0, i32* %1, align 4
+  store i32 0, i32* %i, align 4
+  store i32 0, i32* %j, align 4
+  store i32 0, i32* %k, align 4
+  store i32 0, i32* %i, align 4
+  br label %ForCond
+
+ForCond:                                          ; preds = %ForExit4, %FuncEntry
+  %2 = load i32, i32* %i, align 4
+  %3 = icmp slt i32 %2, 2
+  br i1 %3, label %ForBody, label %ForExit
+
+ForBody:                                          ; preds = %ForCond
+  store i32 0, i32* %j, align 4
+  br label %ForCond1
+
+ForExit:                                          ; preds = %ForCond
+  store i32 0, i32* %i, align 4
+  br label %WhileCond
+
+ForCond1:                                         ; preds = %ForExit8, %ForBody
+  %4 = load i32, i32* %j, align 4
+  %5 = icmp slt i32 %4, 3
+  br i1 %5, label %ForBody2, label %ForExit4
+
+ForBody2:                                         ; preds = %ForCond1
+  store i32 0, i32* %k, align 4
+  br label %ForCond5
+
+ForExit4:                                         ; preds = %ForCond1
+  %6 = load i32, i32* %i, align 4
+  %7 = add i32 %6, 1
+  store i32 %7, i32* %i, align 4
+  br label %ForCond
+
+ForCond5:                                         ; preds = %ForBody6, %ForBody2
+  %8 = load i32, i32* %k, align 4
+  %9 = icmp slt i32 %8, 4
+  br i1 %9, label %ForBody6, label %ForExit8
+
+ForBody6:                                         ; preds = %ForCond5
+  %10 = load i32, i32* %i, align 4
+  %11 = load i32, i32* %j, align 4
+  %12 = mul i32 %10, %11
+  %13 = load i32, i32* %k, align 4
+  %14 = add i32 %12, %13
+  %15 = add i32 %14, 1
+  %16 = load i32, i32* %i, align 4
+  %17 = load i32, i32* %j, align 4
+  %18 = load i32, i32* %k, align 4
+  %19 = bitcast [4 x [3 x [2 x i32]]]* %c to [3 x [2 x i32]]*
+  %20 = getelementptr [3 x [2 x i32]], [3 x [2 x i32]]* %19, i32 %16
+  %21 = bitcast [4 x [3 x [2 x i32]]]* %c to [3 x [2 x i32]]*
+  %22 = getelementptr [3 x [2 x i32]], [3 x [2 x i32]]* %21, i32 %17
+  %23 = bitcast [4 x [3 x [2 x i32]]]* %c to [3 x [2 x i32]]*
+  %24 = getelementptr [3 x [2 x i32]], [3 x [2 x i32]]* %23, i32 %18
+  store i32 %15, [3 x [2 x i32]]* %24, align 4
+  %25 = load i32, i32* %k, align 4
+  %26 = add i32 %25, 1
+  store i32 %26, i32* %k, align 4
+  br label %ForCond5
+
+ForExit8:                                         ; preds = %ForCond5
+  %27 = load i32, i32* %j, align 4
+  %28 = add i32 %27, 1
+  store i32 %28, i32* %j, align 4
+  br label %ForCond1
+
+WhileCond:                                        ; preds = %WhileExit11, %ForExit
+  %29 = load i32, i32* %i, align 4
+  %30 = icmp slt i32 %29, 2
+  br i1 %30, label %WhileBody, label %WhileExit
+
+WhileBody:                                        ; preds = %WhileCond
+  store i32 0, i32* %j, align 4
+  br label %WhileCond9
+
+WhileExit:                                        ; preds = %WhileCond
+  ret i32 0
+
+WhileCond9:                                       ; preds = %WhileExit14, %WhileBody
+  %31 = load i32, i32* %j, align 4
+  %32 = icmp slt i32 %31, 3
+  br i1 %32, label %WhileBody10, label %WhileExit11
+
+WhileBody10:                                      ; preds = %WhileCond9
+  store i32 0, i32* %k, align 4
+  br label %WhileCond12
+
+WhileExit11:                                      ; preds = %WhileCond9
+  %33 = load i32, i32* %i, align 4
+  %34 = add i32 %33, 1
+  store i32 %34, i32* %i, align 4
+  br label %WhileCond
+
+WhileCond12:                                      ; preds = %WhileBody13, %WhileBody10
+  %35 = load i32, i32* %k, align 4
+  %36 = icmp slt i32 %35, 4
+  br i1 %36, label %WhileBody13, label %WhileExit14
+
+WhileBody13:                                      ; preds = %WhileCond12
+  %37 = load i32, i32* %i, align 4
+  %38 = load i32, i32* %j, align 4
+  %39 = load i32, i32* %k, align 4
+  %40 = bitcast [4 x [3 x [2 x i32]]]* %c to [3 x [2 x i32]]*
+  %41 = getelementptr [3 x [2 x i32]], [3 x [2 x i32]]* %40, i32 %37
+  %42 = bitcast [4 x [3 x [2 x i32]]]* %c to [3 x [2 x i32]]*
+  %43 = getelementptr [3 x [2 x i32]], [3 x [2 x i32]]* %42, i32 %38
+  %44 = bitcast [4 x [3 x [2 x i32]]]* %c to [3 x [2 x i32]]*
+  %45 = getelementptr [3 x [2 x i32]], [3 x [2 x i32]]* %44, i32 %39
+  %46 = load [3 x [2 x i32]], [3 x [2 x i32]]* %45, align 4
+  %47 = call i32 (i32*, ...) @printk(i32* bitcast ([4 x i8]* @0 to i32*), [3 x [2 x i32]] %46)
+  %48 = load i32, i32* %k, align 4
+  %49 = add i32 %48, 1
+  store i32 %49, i32* %k, align 4
+  br label %WhileCond12
+
+WhileExit14:                                      ; preds = %WhileCond12
+  %50 = load i32, i32* %j, align 4
+  %51 = add i32 %50, 1
+  store i32 %51, i32* %j, align 4
+  br label %WhileCond9
+}

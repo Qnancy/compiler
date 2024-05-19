@@ -1,7 +1,7 @@
 static int c;
 static int d[100];
-int printk(int ptr, ...);
-int scank(int ptr, ...);
+int printf(char ptr, ...);
+int custom_scan(char ptr, ...);
 
 int main(){
 	int a2;
@@ -18,25 +18,25 @@ int main(){
 	int temp1;
 
 
-	scank("%d %d", &a1, &b1);
+	scanf("%d %d", &a1, &b1);
 
 	for(i = 0;i<a1;i=i+1){
 		for(j=0;j<b1;j=j+1){
-			scank("%d", &temp1);
+			scanf("%d", &temp1);
 			Arr1[i*25+j] = temp1;
 		}
 	}
 
-	scank("%d %d ", &a2, &b2);
+	scanf("%d %d ", &a2, &b2);
 	for(i = 0;i<a2;i=i+1){
 		for(j=0;j<b2;j=j+1){
-			scank("%d", &temp1);
+			scanf("%d", &temp1);
 			Arr2[i*25+j] = temp1;
 		}
 	}
 	
 	if(b1 != a2){
-		printk("Incompatible Dimensions\n");
+		printf("Incompatible Dimensions\n");
 		return 0;
 	}
 	for(i = 0;i<a1;i=i+1){
@@ -53,9 +53,9 @@ int main(){
 	for(i=0;i<a1;i=i+1){
 		for(j=0;j<b2;j=j+1){
 			int temp = Res[i*25+j];
-			printk("%10d",temp);
+			printf("%10d",temp);
 		}
-		printk("\n");
+		printf("\n");
 	}
 
 	return 0;
