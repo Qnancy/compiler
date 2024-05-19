@@ -7,6 +7,7 @@
 #include <stack>
 #include <string>
 #include <exception>
+#include <fmt/core.h>
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Function.h>
@@ -131,4 +132,5 @@ public:
     llvm::BasicBlock* ContinueCurrentLoop();
     
     bool SetFuncDefined(std::string name); 
+	void GenAstTree(std::string FileName, BaseAST* root);
 };

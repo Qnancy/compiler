@@ -89,6 +89,7 @@ public:
 	~VarType(){}
 	TypeID GetType() {return type;}
 	llvm::Type* ToLLVMType(IRGenerator&); 
+	std::string getJson();
 	
 private: 
 	TypeID type;
@@ -102,6 +103,7 @@ public:
 	PointerType(VarType _baseType_) : baseType_(_baseType_) {}
 	~PointerType(void) {}
 	llvm::Type* ToLLVMType(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 //Pure virtual class for AST node
@@ -111,6 +113,7 @@ public:
 	~BaseAST() {}
 
 	virtual llvm::Value* IRGen(IRGenerator& IRContext) = 0;
+	virtual std::string getJson() = 0;
 };
 
 class Program : public BaseAST {
@@ -121,6 +124,7 @@ public:
 	~Program(){};
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class CompUnit : public BaseAST {
@@ -129,6 +133,7 @@ public:
 	~CompUnit(){}
 
 	virtual llvm::Value* IRGen(IRGenerator& IRContext) = 0;
+	virtual std::string getJson() = 0;
 };
 
 class FuncDef : public CompUnit {
@@ -143,6 +148,7 @@ public:
 	~FuncDef(){};
 	
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 
@@ -152,6 +158,7 @@ public:
 	~Decl() {}
 
 	virtual llvm::Value* IRGen(IRGenerator& IRContext) = 0;
+	virtual std::string getJson() = 0;
 };
 
 class VarDecl : public Decl {
@@ -164,6 +171,7 @@ public:
 	~VarDecl() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class VarDef: public BaseAST {
@@ -176,6 +184,7 @@ public:
 	~VarDef() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class ArrDef : public BaseAST {
@@ -188,6 +197,7 @@ public:
 	~ArrDef() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 
 };
 
@@ -200,6 +210,7 @@ public:
 	~Block(){}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class Stmt: public BaseAST {
@@ -208,6 +219,7 @@ public:
 	~Stmt() {}
 
 	virtual llvm::Value* IRGen(IRGenerator& IRContext) = 0;
+	virtual std::string getJson() = 0;
 };
 
 class IfStmt : public Stmt {
@@ -220,6 +232,7 @@ public:
 	~IfStmt(){}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class ForStmt : public Stmt {
@@ -234,6 +247,7 @@ public:
 	~ForStmt(){}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class WhileStmt : public Stmt {
@@ -246,6 +260,7 @@ public:
 	~WhileStmt(){}; 
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class ReturnStmt : public Stmt {
@@ -256,6 +271,7 @@ public:
 	~ReturnStmt () {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class BreakStmt : public Stmt {
@@ -264,6 +280,7 @@ public:
 	~BreakStmt(){}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 }; 
 
 class ContinueStmt : public Stmt {
@@ -272,6 +289,7 @@ public:
 	~ContinueStmt(){}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 }; 
 
 class Expr : public BaseAST {
@@ -280,6 +298,7 @@ public:
 	~Expr(void) {}
 
 	virtual llvm::Value* IRGen(IRGenerator& IRContext) = 0;
+	virtual std::string getJson() = 0;
 };
 
 class UnaryPlus : public Expr {
@@ -290,6 +309,7 @@ public:
 	~UnaryPlus() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class UnaryMinus : public Expr {
@@ -300,6 +320,7 @@ public:
 	~UnaryMinus() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class AddressOf : public Expr {
@@ -308,6 +329,7 @@ public:
 	AddressOf(LeftVal* _oprand_) : oprand_(_oprand_) {}
 	~AddressOf(void) {}
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class Addition : public Expr {
@@ -319,6 +341,7 @@ public:
 	~Addition() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class Subtraction : public Expr {
@@ -330,6 +353,7 @@ public:
 	~Subtraction() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class Multiplication : public Expr {
@@ -341,6 +365,7 @@ public:
 	~Multiplication() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class Division : public Expr{
@@ -352,6 +377,7 @@ public:
 	~Division() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class Modulo : public Expr {
@@ -363,6 +389,7 @@ public:
 	~Modulo() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 /**
@@ -377,6 +404,7 @@ public:
 	~LogicNot() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 
 };
 
@@ -389,6 +417,7 @@ public:
 	~LogicEQ() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class LogicNEQ : public Expr {
@@ -400,6 +429,7 @@ public:
 	~LogicNEQ() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class LogicGEQ : public Expr {
@@ -411,6 +441,7 @@ public:
 	~LogicGEQ() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class LogicGT : public Expr {
@@ -422,6 +453,7 @@ public:
 	~LogicGT() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class LogicLEQ : public Expr {
@@ -433,6 +465,7 @@ public:
 	~LogicLEQ() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class LogicLT : public Expr {
@@ -444,6 +477,7 @@ public:
 	~LogicLT() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class LogicAND : public Expr {
@@ -455,6 +489,7 @@ public:
 	~LogicAND() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class LogicOR : public Expr {
@@ -466,6 +501,7 @@ public:
 	~LogicOR() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class BitwiseAND : public Expr {
@@ -477,6 +513,7 @@ public:
 	~BitwiseAND() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class BitwiseXOR : public Expr {
@@ -488,6 +525,7 @@ public:
 	~BitwiseXOR() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class BitwiseOR : public Expr {
@@ -499,6 +537,7 @@ public:
 	~BitwiseOR() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 
@@ -511,6 +550,7 @@ public:
 	~Assign() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 
@@ -523,6 +563,7 @@ public:
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
 	llvm::Value* IRGenPtr(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class ArrVal : public LeftVal {
@@ -535,6 +576,7 @@ public:
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
 	llvm::Value* IRGenPtr(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class Constant : public Expr {
@@ -552,6 +594,7 @@ public:
 	~Constant() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 class StringType : public Constant {
@@ -560,6 +603,7 @@ public:
 	StringType(const std::string& _content_) : Constant(0), content_(_content_) {}
 	~StringType(void) {}
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 //Function argument
@@ -576,6 +620,7 @@ public:
 		type_(_typeName_), name_(_name_) {}
 	~Arg(void) {}
 	llvm::Value* IRGen(IRGenerator& IRContext) { return NULL; }
+	std::string getJson();
 };
 
 class ArgList: public std::vector<Arg*>, public BaseAST {
@@ -587,6 +632,7 @@ public:
 	ArgList(void) : varArgLenth_(false) {}
 	~ArgList(void) {}
 	llvm::Value* IRGen(IRGenerator& IRContext) { return NULL; }
+	std::string getJson();
 };
 
 class FuncCall : public Expr {
@@ -598,6 +644,7 @@ public:
 	~FuncCall(void) {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 
@@ -611,6 +658,7 @@ public:
 	~ArrAssign() {}
 
 	llvm::Value* IRGen(IRGenerator& IRContext);
+	std::string getJson();
 };
 
 extern BaseAST* Root;
