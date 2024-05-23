@@ -4,7 +4,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-// 自定义的可变参数输入函数，用于读取不同类型的输入
+//自定义的可变参数输入函数，用于读取不同类型的输入
 void scan(const char* format, ...) {
     va_list args;
     va_start(args, format);
@@ -46,24 +46,29 @@ void scan(const char* format, ...) {
     va_end(args);
 }
 
-
-// 自定义的可变参数输出函数，用于打印不同类型的输出
 void print(const char* format, ...) {
     va_list args;
     va_start(args, format);
 
-    for (const char* fmt_ptr = format; *fmt_ptr != '\0'; ++fmt_ptr) {
-        if (*fmt_ptr == '%') {
-            char format_buffer[11]; // 用于构建格式字符串
-            format_buffer[0] = '%';
-            int index = 1;
+    while (*format != '\0') {
+        if (*format == '%') {
+            const char* start_format = format;  // 记录格式字符串的起始位置
+            format++; // 移动指针以跳过 '%'
 
-            for (; *(fmt_ptr + index) != '\0' && *(fmt_ptr + index) != '%'; ++index) {
-                format_buffer[index] = *(fmt_ptr + index);
+            // 检查是否有格式说明符
+            while (*format >= '0' && *format <= '9' || *format == '.') {
+                format++;
             }
-            format_buffer[index + 1] = '\0'; // 确保字符串以null结尾
+            if (*format=='l' && *(format+1)=='f')
+                format++;
 
-            switch (*(fmt_ptr + index)) {
+            // 处理格式字符
+            char format_specifier = *format;
+            char format_buffer[32];  // 用于存储完整的格式字符串
+            size_t format_length = format - start_format + 1;
+            snprintf(format_buffer, format_length + 1, "%s", start_format);
+
+            switch (format_specifier) {
                 case 'd': {
                     int value = va_arg(args, int);
                     printf(format_buffer, value);
@@ -75,7 +80,7 @@ void print(const char* format, ...) {
                     break;
                 }
                 case 'c': {
-                    int value = va_arg(args, int);
+                    int value = va_arg(args, int); // `char` 在 va_arg 中提升为 `int`
                     printf(format_buffer, value);
                     break;
                 }
@@ -85,16 +90,24 @@ void print(const char* format, ...) {
                     break;
                 }
                 default:
-                    // 打印未识别的格式字符
-                    printf("%%%c", *(fmt_ptr + index));
+                    // 如果不是以上任何一个类型，则打印格式符号
+                    putchar('%');
+                    putchar(format_specifier);
                     break;
             }
         } else {
-            putchar(*fmt_ptr);
+            putchar(*format);
         }
+        format++; // 移动指针到下一个字符
     }
 
     va_end(args);
 }
 
+// int main() {
+//     print("Hello %s! Your score is %d and your grade is %c.\n", "Alice", 95, 'A');
+//     print("Pi is approximately %.2lf.\n", 3.14159);
+//     print("Pi is approximately %lf.\n", 3.14159);
+//     return 0;
+// }
 
