@@ -754,6 +754,9 @@ VarType::VarType(std::string name) {
 	else if (name == "short") type = Short;
 	else if (name == "double") type = Double;
 	else if (name == "bool") type = Bool;
+	else if (name == "void") type = Void;
+	else if (name == "ptr") type = Ptr;
+	else throw std::logic_error("Unknown type: " + name);
 } 
 
 
@@ -764,6 +767,7 @@ llvm::Type* VarType::ToLLVMType(IRGenerator& IRContext) {
 		case Short: return IRBuilder.getInt16Ty();
 		case Double: return IRBuilder.getDoubleTy(); 
 		case Bool: return IRBuilder.getInt1Ty(); 
+		case Void: return IRBuilder.getVoidTy();
 		case Ptr: return this->baseTypePointer->ToLLVMType(IRContext);
 	}
 	return NULL;

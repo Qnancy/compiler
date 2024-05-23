@@ -10,8 +10,6 @@
 #include <string>
 
 #define SAVE_TOKEN yylval.strVal = new std::string(yytext, yyleng)
-// 因为 Flex 会用到 Bison 中关于 token 的定义
-// 所以需要 include Bison 生成的头文件
 extern "C" int yywrap() {return 1;}
 
 %}

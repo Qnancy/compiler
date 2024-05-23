@@ -80,6 +80,7 @@ enum TypeID{
 	Short,
 	Double,
 	Bool,
+	Void,
 	Ptr
 };
 class VarType {
