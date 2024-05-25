@@ -191,7 +191,7 @@ llvm::Value* ArrDef::IRGen(IRGenerator& IRContext) {
     if (!elementType) {
         throw std::logic_error("Unknown element type for array: " + this->arrName_);
     }
-
+	std::vector<llvm::Value*> dims;
 	llvm::Type* arrayType = elementType;
 	for(auto expr : *(this->exprs_)){
 		llvm::Value* val = expr->IRGen(IRContext);
@@ -199,19 +199,19 @@ llvm::Value* ArrDef::IRGen(IRGenerator& IRContext) {
         if (!constant) {
             throw std::logic_error("Array dimension must be a constant integer.");
         }
-		int convertedValue = constant->getSExtValue();
-		arrayType = llvm::ArrayType::get(arrayType, convertedValue);
-		std::cout << "convertedValue" << convertedValue << "  " << std::endl;
+		int dim = constant->getSExtValue();
+		arrayType = llvm::ArrayType::get(arrayType, dim);
+		std::cout << "dim" << dim << "  " << std::endl;
+		dims.push_back(val);
 	}
 	
 	if(IRContext.GetCurFunc()){
 		auto Alloc = CreateEntryBlockAlloca(IRContext.GetCurFunc(), this->arrName_, arrayType);
 		arrayType->print(llvm::outs());
-		if (!IRContext.CreateVar(this->arrName_, Alloc, true))
+		if (!IRContext.CreateVar(this->arrName_, Alloc, dims))
 			throw std::logic_error("Variable redefined: " + this->arrName_); 
 		
 	}else{
-		llvm::ArrayType* arrayType = llvm::ArrayType::get(elementType, 100);
 		llvm::Constant* Initializer = llvm::UndefValue::get(arrayType);
 
 		auto AllocMem = new llvm::GlobalVariable(
@@ -223,7 +223,7 @@ llvm::Value* ArrDef::IRGen(IRGenerator& IRContext) {
 			this->arrName_
 		);
 		
-		if (!IRContext.CreateVar(this->arrName_, AllocMem, true))
+		if (!IRContext.CreateVar(this->arrName_, AllocMem, dims))
 			throw std::logic_error("Variable redefined: " + this->arrName_);
 	}
 }
@@ -256,7 +256,7 @@ llvm::Value* FuncCall::IRGen(IRGenerator& IRContext) {
 		i += 1; 
 	}
 	
-	if ( Func->isVarArg() ) {
+	if (Func->isVarArg() ) {
 		for (; i < this->argList_->size(); i++) {
 			Arg = this->argList_->at(i)->IRGen(IRContext);
 			if (Arg->getType()->isIntegerTy())
@@ -704,47 +704,52 @@ llvm::Value* StringType::IRGen(IRGenerator& IRContext) {
 
 llvm::Value* ArrVal::IRGen(IRGenerator& IRContext) {
 	std::cout << "ArrVal" << std::endl;
+	llvm::Value* currentPtr = this->IRGenPtr(IRContext);
+    // 加载最终元素的值
+    return IRBuilder.CreateLoad(currentPtr->getType()->getNonOpaquePointerElementType(), currentPtr);
+
+}
+
+
+llvm::Value* ArrVal::IRGenPtr(IRGenerator& IRContext) {
 	llvm::Value* arrayPtr = IRContext.FindVar(this->name_);
+	std::vector<llvm::Value*> dims = IRContext.GetVarDims(this->name_);
 	std::cout << "Array Ptr " << arrayPtr << std::endl; 
 	std::vector<llvm::Value*> indices;
 	for(auto expr : *(this->exprs_)){
 		indices.push_back(expr->IRGen(IRContext));
 	}
-	llvm::Value* v1, *v2;
-	for(auto indice: indices){
-		if(arrayPtr->getType()->getNonOpaquePointerElementType()->isArrayTy()){
-			v1 = IRBuilder.CreatePointerCast(arrayPtr, arrayPtr->getType()->getNonOpaquePointerElementType()->getArrayElementType()->getPointerTo());	
-		}else if(arrayPtr->getType()->isPointerTy()){
-			v1 = IRBuilder.CreateLoad(arrayPtr->getType()->getNonOpaquePointerElementType(), arrayPtr);
+    llvm::Value* currentPtr = arrayPtr;
+    llvm::Type* currentType = arrayPtr->getType();
+    llvm::Type* elementType = nullptr;
+	// 遍历所有索引，逐层深入数组的每个维度
+    for (size_t i = 0; i < indices.size(); ++i) {
+        // 获取当前维度的元素类型
+        elementType = currentType->getNonOpaquePointerElementType();
+
+        // 如果当前索引不是数组的第一个维度，需要计算偏移量
+        // if (i > 0) {
+        //     llvm::Value* stride = dims[i];
+        //     llvm::Value* offset = IRBuilder.CreateMul(indices[i-1], stride);
+        //     indices[i] = IRBuilder.CreateAdd(indices[i], offset);
+		// 	indices[i] = IRBuilder.CreateSub(indices[i], indices[i-1]);
+        // }
+		if (elementType->isArrayTy()){
+			currentPtr = IRBuilder.CreatePointerCast(currentPtr, elementType->getArrayElementType()->getPointerTo());
+		}else if (elementType->isPointerTy()){
+			currentPtr = IRBuilder.CreateLoad(elementType, currentPtr);
 		}else{
 			throw std::logic_error("The sunsciption operation received neither array type nor pointer type");
 		}
-		v2 = IRBuilder.CreateGEP(v1->getType()->getNonOpaquePointerElementType(), v1, indice);
-	}
-	return IRBuilder.CreateLoad(v1->getType()->getNonOpaquePointerElementType(), v2);
-}
+        // 更新指针到当前维度的元素
+        llvm::Value* elementPtr = IRBuilder.CreateGEP(currentPtr->getType()->getNonOpaquePointerElementType(), currentPtr, indices[i]);
 
-
-llvm::Value* ArrVal::IRGenPtr(IRGenerator& IRContext) {
-	std::cout << "ArrValPtr" << std::endl;
-	llvm::Value* arrayPtr = IRContext.FindVar(this->name_);
-	arrayPtr->print(llvm::outs());
-	std::vector<llvm::Value*> indices;
-	for(auto expr : *(this->exprs_)){
-		indices.push_back(expr->IRGen(IRContext));
-	}
-	llvm::Value* v1, *v2;
-	for(auto indice: indices){
-		if(arrayPtr->getType()->getNonOpaquePointerElementType()->isArrayTy()){
-			v1 = IRBuilder.CreatePointerCast(arrayPtr, arrayPtr->getType()->getNonOpaquePointerElementType()->getArrayElementType()->getPointerTo());	
-		}else if(arrayPtr->getType()->isPointerTy()){
-			v1 = IRBuilder.CreateLoad(arrayPtr->getType()->getNonOpaquePointerElementType(), arrayPtr);
-		}else{
-			throw std::logic_error("The sunsciption operation received neither array type nor pointer type");
-		}
-		v2 = IRBuilder.CreateGEP(v1->getType()->getNonOpaquePointerElementType(), v1, indice);
-	}
-	return v2;
+        // 更新currentPtr和currentType为下一个维度的指针和类型
+        currentPtr = elementPtr;
+        currentType = currentPtr->getType();
+    }
+	return currentPtr;
+	
 }
 
 

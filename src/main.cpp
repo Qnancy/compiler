@@ -9,7 +9,8 @@ extern BaseAST* Root;
 extern int yydebug;
 int main(int argc, const char* argv[]) {
     // yydebug = 1;
-    std::string inputfile = argv[1];
+    // std::string inputfile = argv[1];
+    std::string inputfile = "/home/compiler/tests/test1.c";
 
     std::string fileName = inputfile.substr(inputfile.rfind("/") + 1, inputfile.rfind(".") - (inputfile.rfind("/") + 1));
     std::string fileNamePath = inputfile.substr(0, inputfile.rfind("."));

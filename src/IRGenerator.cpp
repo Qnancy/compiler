@@ -94,7 +94,7 @@ void IRGenerator::PopSymbolTable() {
 
 //Variable
 //创建变量
-bool IRGenerator::CreateVar(std::string name, llvm::Value* value, bool isPtr){
+bool IRGenerator::CreateVar(std::string name, llvm::Value* value, std::vector<llvm::Value*> dims){
     if (this->symbolTableStack_.empty()) {
         throw std::logic_error("No Symbol Table Found");
     }
@@ -102,7 +102,10 @@ bool IRGenerator::CreateVar(std::string name, llvm::Value* value, bool isPtr){
     if (topSymbolTable->find(name) != topSymbolTable->end()) {
        return false;
     }
-    topSymbolTable->insert({name, SymbolEntry(value, isPtr)});
+	if (dims.size() > 0) 
+    	topSymbolTable->insert({name, SymbolEntry(value, dims)});
+	else
+		topSymbolTable->insert({name, SymbolEntry(value)});
     return true;
 }
 
@@ -134,6 +137,19 @@ bool IRGenerator::IsPtrVar(const std::string& name) {
         }
     }
     return false;
+}
+
+std::vector<llvm::Value*> IRGenerator::GetVarDims(std::string name){
+	if (this->symbolTableStack_.empty()) {
+		return {};
+	}
+	for (auto symbolTable = this->symbolTableStack_.end() - 1; symbolTable >= this->symbolTableStack_.begin(); symbolTable--) {
+		auto iter = (*symbolTable)->find(name);
+		if (iter != (*symbolTable)->end()) {
+			return iter->second.GetDimensions();
+		}
+	}
+	return {};
 }
 
 

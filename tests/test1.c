@@ -1,14 +1,12 @@
-int fib(int n) {
-  if (n <= 2) {
-    return 1;
-  } else {
-    return fib(n - 1) + fib(n - 2);
-  }
-}
+int print(char ptr,...);
+int scan(char ptr,...);
 
-int main() {
-  int input = getint();
-  putint(fib(input));
-  putch(10);
-  return 0;
+int main(){
+  double arr2[5][10];
+  arr2[2][3]=5.2;
+  arr2[1][4]=2.5;
+  print("%f\n",arr2[1][4]);
+  double x;
+  x=arr2[2][3];
+  print("%f\n",x);
 }

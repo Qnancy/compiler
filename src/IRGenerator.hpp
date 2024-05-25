@@ -70,13 +70,15 @@ class SymbolEntry {
 public:
     SymbolEntry(llvm::Function* Func, bool isDefined) : Content(Func), Type(FUNCTION), isFunctionDefined(isDefined){}
     SymbolEntry(llvm::Type* Ty) : Content(Ty), Type(TYPE) {}
-    SymbolEntry(llvm::Value* Value, bool isPtr) : Content(Value), Type(isPtr ? PTR : VARIABLE) {}
+    SymbolEntry(llvm::Value* Value) : Content(Value), Type(VARIABLE) {}
+    SymbolEntry(llvm::Value* Value, std::vector<llvm::Value*> dims) : Content(Value), Type(PTR), Dimensions(dims) {}
     llvm::Function* GetFunction(void) { return this->Type == FUNCTION ? (llvm::Function*)Content : NULL; }
     void SetFunctionDefined() { this->isFunctionDefined = true;}
     bool GetFunctionDefined() { return this->isFunctionDefined;}
     llvm::Type* GetType(void) { return this->Type == TYPE ? (llvm::Type*)Content : NULL; }
     llvm::Value* GetVariable(void) { return this->Type == VARIABLE ? (llvm::Value*)Content : NULL; }
     llvm::Value* GetPTR(void) { return this->Type == PTR ? (llvm::Value*)Content : NULL; }
+    std::vector<llvm::Value*> GetDimensions(void) { return this->Dimensions; }
 private:
     void* Content;
     enum {
@@ -87,6 +89,7 @@ private:
     } Type;
 
     bool isFunctionDefined = false;
+    std::vector<llvm::Value*> Dimensions;
 };
 using SymbolTable = std::map<std::string, SymbolEntry>;
 
@@ -118,9 +121,10 @@ public:
     void PopSymbolTable(void);
 
     // Var
-    bool CreateVar(std::string name, llvm::Value* value, bool isPtr=false);
+    bool CreateVar(std::string name, llvm::Value* value, std::vector<llvm::Value*> dims = {});
 	llvm::Value* FindVar(const std::string&);
     bool IsPtrVar(const std::string&);
+    std::vector<llvm::Value*> GetVarDims(std::string name);
 
     void SetCurVarType(VarType* curVarType);
     VarType* GetCurVarType();
