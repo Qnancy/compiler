@@ -130,10 +130,11 @@ union YYSTYPE
     ArgList *argList;
     Expr *expVal;
     PointerType *ptrType;
+    VarType *varType;
     VarDef *varDef;
     VarList *varList;
 
-#line 137 "parser.hpp"
+#line 138 "parser.hpp"
 
 };
 typedef union YYSTYPE YYSTYPE;

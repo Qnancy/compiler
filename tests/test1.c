@@ -1,12 +1,16 @@
-int print(char ptr,...);
-int scan(char ptr,...);
+int print(char ptr, ...);
 
-int main(){
-  double arr2[5][10];
-  arr2[2][3]=5.2;
-  arr2[1][4]=2.5;
-  print("%f\n",arr2[1][4]);
-  double x;
-  x=arr2[2][3];
-  print("%f\n",x);
+int add(int a, int b)
+{
+    return a + b;
+}
+
+int main()
+{
+    int a = -10;    //Constant类
+    int b = 5;
+    char ptr c = "Global String";    //GlobalString类
+    print("%s\n", c);
+    int ptr f = &a;    //Addressof类
+    print("%d\n", f);
 }

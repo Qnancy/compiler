@@ -85,8 +85,8 @@ enum TypeID{
 };
 class VarType {
 public:
-	VarType(std::string name);
-	VarType(PointerType* _baseType_):baseTypePointer(_baseType_) {type=Ptr;}
+	VarType() {} // Add default constructor here
+	VarType(std::string _type_);
 	~VarType(){}
 	TypeID GetType() {return type;}
 	llvm::Type* ToLLVMType(IRGenerator&); 
@@ -97,7 +97,7 @@ private:
 	PointerType* baseTypePointer;
 };
 
-class PointerType{
+class PointerType : public VarType{
 public:
 	VarType baseType_;
 
@@ -167,7 +167,7 @@ public:
 	VarType type_; 
 	VarList* varList_;
 
-	VarDecl(std::string _type_, VarList* _varList_) : 
+	VarDecl(VarType _type_, VarList* _varList_) : 
 		varList_(_varList_), type_(_type_) {}
 	~VarDecl() {}
 
@@ -615,9 +615,9 @@ public:
 	//Its name (if any)
 	std::string name_;
 
-	Arg(std::string& _typeName_, const std::string& _name_ = "") :
+	Arg(VarType _typeName_, const std::string& _name_ = "") :
 		type_(_typeName_), name_(_name_) {}
-	Arg(PointerType* _typeName_, const std::string& _name_ = "") :
+	Arg(PointerType _typeName_, const std::string& _name_ = "") :
 		type_(_typeName_), name_(_name_) {}
 	~Arg(void) {}
 	llvm::Value* IRGen(IRGenerator& IRContext) { return NULL; }

@@ -38,6 +38,7 @@
     ArgList *argList;
     Expr *expVal;
     PointerType *ptrType;
+    VarType *varType;
     VarDef *varDef;
     VarList *varList;
 }
@@ -75,6 +76,9 @@
 %type <argList> ArgList
 %type <argList> _ArgList
 %type <argVal> Arg
+
+%type <varType> Type
+%type <varType> Btype
 %type <ptrType> PtrType
 
 %type <exprs> ExpList
@@ -83,7 +87,7 @@
 %type <astVal> Decl
 %type <astVal> ConstExp
 %type <astVal> VarDecl
-%type <strVal> Btype
+
 %type <varList> VarList
 %type <varDef> VarDef
 %type <exprs> ArrDef ArrVal
@@ -136,19 +140,28 @@ Decl
 
 /* BType         ::= "int"; */
 Btype
-    : VOID                                                  { $$ = $1; }
-    | INT                                                   { $$ = $1; }
-    | SHORT                                                 { $$ = $1; }
-    | CHAR                                                  { $$ = $1; }
-	| DOUBLE 						                        { $$ = $1; }
-    | BOOL                                                  { $$ = $1; }
+    : VOID                                                  { $$ = new VarType(*$1); }
+    | INT                                                   { $$ = new VarType(*$1); }
+    | SHORT                                                 { $$ = new VarType(*$1); }
+    | CHAR                                                  { $$ = new VarType(*$1); }
+	| DOUBLE 						                        { $$ = new VarType(*$1); }
+    | BOOL                                                  { $$ = new VarType(*$1); }
+    ;
+
+PtrType
+    : Btype PTR                                             { $$ = new PointerType(*$1); }
+    ;
+
+Type
+    : Btype                                                 { $$ = $1; }
+    | PtrType                                               { $$ = $1; }
     ;
 
 
 /* VarDecl       ::= BType VarDef {"," VarDef} ";"; */
 VarDecl
-    : Btype VarList SEMI                                    { $$ = new VarDecl(*$1, (VarList*)$2);}
-    | Btype IDENTIFIER ArrDef SEMI                          { $$ = new ArrDef(*$1, *$2, (Exprs*)$3);}
+    : Type VarList SEMI                                    { $$ = new VarDecl(*$1, (VarList*)$2);}
+    | Type IDENTIFIER ArrDef SEMI                          { $$ = new ArrDef(*$1, *$2, (Exprs*)$3);}
     ;
 
 VarList
@@ -210,14 +223,8 @@ _ArgList
 	;
 
 Arg
-    : Btype IDENTIFIER										{ $$ = new Arg(*$1, *$2);   }
-	| PtrType IDENTIFIER							        { $$ = new Arg($1, *$2);   }
-	| PtrType 							                    { $$ = new Arg($1);   }
-    | Btype                                                 { $$ = new Arg(*$1);   }
-
-PtrType
-    : Btype PTR                                             { $$ = new PointerType(*$1); }
-    ;
+    : Type IDENTIFIER										{ $$ = new Arg(*$1, *$2);   }
+	| Type 							                        { $$ = new Arg(*$1);   }
 
 /* Block         ::= "{" {BlockItem} "}"; */
 Block

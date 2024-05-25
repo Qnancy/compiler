@@ -753,15 +753,15 @@ llvm::Value* ArrVal::IRGenPtr(IRGenerator& IRContext) {
 }
 
 
-VarType::VarType(std::string name) {
-	if (name == "int") type = Int; 
-	else if (name == "char") type = Char; 
-	else if (name == "short") type = Short;
-	else if (name == "double") type = Double;
-	else if (name == "bool") type = Bool;
-	else if (name == "void") type = Void;
-	else if (name == "ptr") type = Ptr;
-	else throw std::logic_error("Unknown type: " + name);
+VarType::VarType(std::string _type_) {
+	if (_type_ == "int") type = Int; 
+	else if (_type_ == "char") type = Char; 
+	else if (_type_ == "short") type = Short;
+	else if (_type_ == "double") type = Double;
+	else if (_type_ == "bool") type = Bool;
+	else if (_type_ == "void") type = Void;
+	else if (_type_ == "ptr") type = Ptr;
+	else throw std::logic_error("Unknown type: " + _type_);
 } 
 
 
