@@ -22,6 +22,7 @@ int main(int argc, const char* argv[]) {
     Generator.GenerateCode(Root);
     
     Generator.GenObjectCode("io/"+ fileName +".o");
+    Generator.GenAstTree("io/"+ fileName +".html",Root);
     Generator.DumpIRCode("io/"+fileName+".ir");
 
     std::cout << "Compile Success!" << std::endl;

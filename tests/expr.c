@@ -5,22 +5,18 @@ int add(int a, int b)
     return a + b;
 }
 
-void main()
+int main()
 {
-    int a = -2;    //Constant类
+    int a = -10;    //Constant类
     int b = 5;
     // char ptr c = "Global String";    //GlobalString类
     int c = add(a, b);    //FunctionCall类
-    print("%d\n",a);
-
-    int d=a+b;
-    print("%d\n",d);
     // int ptr f = &a;    //Addressof类
     
     //其他运算符，每类各选取几种代表的运算符
     //一元+，一元-
-    int up = +a;
-    int um = -b;
+    int unaryPlus = +a;
+    int unaryMinus = -b;
     //位运算
     int bitwiseOR = a | b;
     int bitwiseAnd = a & b;
@@ -31,30 +27,35 @@ void main()
     int logicGT = (a > b);
     int logicLE = (a <= b);
     //算术运算
-    int e = a + b;
-    int f = a - b;
-    print("%d\n", e);
-    print("%d\n", f);
+    int add = a + b;
+    int sub = a - b;
     int mul = a * b;
     int div = a / b;
     int mod = a % b;
     
-    print("%d\n", a);    
-    print("%d\n", b); 
-    print("%s\n", c);
-    print("%d\n", c);
-    print("%d\n", up);
-    print("%d\n", um);
-    print("%d\n", bitwiseOR);
-    print("%d\n", bitwiseAnd);
-    print("%d\n", logicOR);
-    print("%d\n", logicAnd);
-    print("%d\n", logicOR);
-    print("%d\n", logicGT);
-    print("%d\n", logicLE);
-    // print("%d\n", add);
-    // print("%d\n", sub);
-    print("%d\n", mul);
-    print("%d\n", div);
-    print("%d\n", mod);
+    //优先级
+    int res1 = c + a * b; 
+    int res2 = a - -5 + b + -5;
+
+    print("a = %d\n", a);    
+    print("b = %d\n", b); 
+    print("c = %d\n", c);
+    print("+a = %d\n", unaryPlus);
+    print("-b = %d\n", unaryMinus);
+    print("a|b = %d\n", bitwiseOR);
+    print("a&b = %d\n", bitwiseAnd);
+    print("a||b = %d\n", logicOR);
+    print("a&&b = %d\n", logicAnd);
+    print("(a>b)= %d\n", logicOR);
+    print("(a<=b) = %d\n", logicGT);
+    print("(a<=b) = %d\n", logicLE);
+    print("a+b = %d\n", add);
+    print("a-b = %d\n", sub);
+    print("a*b = %d\n", mul);
+    print("a/b = %d\n", div);
+    print("a%b = %d\n", mod);
+    print("c+a*b = %d\n",res1);
+    print("a - -5 + b + -5 = %d\n",res2);
+
+    return 0;
 }
