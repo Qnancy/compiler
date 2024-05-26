@@ -1,4 +1,4 @@
-// printk and scank lib
+// print and scan lib
 
 #include <stdio.h>
 #include <stdarg.h>
