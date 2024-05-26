@@ -7,11 +7,9 @@ int add(int a, int b)
 
 int main()
 {
-    int a = -10;    //Constant类
+    int a = -10;    
     int b = 5;
-    // char ptr c = "Global String";    //GlobalString类
     int c = add(a, b);    //FunctionCall类
-    // int ptr f = &a;    //Addressof类
     
     //其他运算符，每类各选取几种代表的运算符
     //一元+，一元-

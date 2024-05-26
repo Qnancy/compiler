@@ -1,7 +1,9 @@
 int print(int ptr, ...);
 int scan(char ptr, ...);
 
-int quicksort(int ptr a, int left, int right){
+static int a[10000];
+
+int quicksort(int left, int right){
 	int i = left;
 	int	j = right;
 	int temp = i + j;
@@ -25,10 +27,10 @@ int quicksort(int ptr a, int left, int right){
 	}
 	
 	if (left < j) {
-        quicksort(a, left, j);
+        quicksort(left, j);
     }
 	if (i < right) {
-        quicksort(a, i, right);
+        quicksort(i, right);
     }
 
     return 0;
@@ -37,16 +39,19 @@ int quicksort(int ptr a, int left, int right){
 int main(){
 	int n;
     int temp;
-	int a[10000];
+	print("Input number of elements:\n");
 	scan("%d", &n);
     int i;
+
+	print("Input %d elements:\n",n);
 	
 	for (i = 0; i < n; i = i + 1){
         scan("%d", &temp);
         a[i] = temp;
     }
 		
-	quicksort(a, 0, n - 1);
+	print("Sorted elements:\n");
+	quicksort(0, n - 1);
 	for (i = 0; i < n; i=i+1){
 		print("%d\n", a[i]);
     }

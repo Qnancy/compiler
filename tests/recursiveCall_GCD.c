@@ -13,6 +13,6 @@ int main(){
 	int A, B;
     print("input number A and B: \n");
 	scan("%d%d", &A, &B);
-	print("GCD(A,B)=%d\n", GCD(A, B));
+	print("GCD(%d,%d)=%d\n", A,B,GCD(A, B));
 	return 0;
 }
